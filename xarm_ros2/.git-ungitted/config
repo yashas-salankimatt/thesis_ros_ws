@@ -1,0 +1,15 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[submodule]
+	active = .
+[remote "origin"]
+	url = https://github.com/xArm-Developer/xarm_ros2.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "humble"]
+	remote = origin
+	merge = refs/heads/humble
+[submodule "xarm_sdk/cxx"]
+	url = https://github.com/xArm-Developer/xArm-CPLUS-SDK.git
