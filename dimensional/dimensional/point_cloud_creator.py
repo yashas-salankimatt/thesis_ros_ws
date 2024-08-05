@@ -77,19 +77,27 @@ class PointCloudCreator(Node):
             colors = np.asarray(pcd.colors) * 255  # Convert from [0, 1] to [0, 255]
             colors = colors.astype(np.uint8)
 
+            # Transform the points to align with ROS coordinate system
+            # From Open3D camera coordinates to ROS coordinates:
+            # x_ros = z_open3d, y_ros = -x_open3d, z_ros = -y_open3d
+            transformed_points = np.zeros_like(points)
+            transformed_points[:, 0] = points[:, 2]  # x_ros = z_open3d
+            transformed_points[:, 1] = -points[:, 0]  # y_ros = -x_open3d
+            transformed_points[:, 2] = -points[:, 1]  # z_ros = -y_open3d
+
             # Check if points and colors are being generated
-            if points.shape[0] == 0:
+            if transformed_points.shape[0] == 0:
                 self.get_logger().warn("No points generated in the point cloud.")
                 return
 
             # Create structured array for point cloud
-            structured_array = np.zeros(points.shape[0], dtype=[
+            structured_array = np.zeros(transformed_points.shape[0], dtype=[
                 ('x', np.float32), ('y', np.float32), ('z', np.float32),
                 ('r', np.uint8), ('g', np.uint8), ('b', np.uint8)
             ])
-            structured_array['x'] = points[:, 0]
-            structured_array['y'] = points[:, 1]
-            structured_array['z'] = points[:, 2]
+            structured_array['x'] = transformed_points[:, 0]
+            structured_array['y'] = transformed_points[:, 1]
+            structured_array['z'] = transformed_points[:, 2]
             structured_array['r'] = colors[:, 0]
             structured_array['g'] = colors[:, 1]
             structured_array['b'] = colors[:, 2]
