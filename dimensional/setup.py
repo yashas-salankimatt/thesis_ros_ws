@@ -20,7 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'point_cloud_creator = dimensional.point_cloud_creator:main'
+            'point_cloud_creator = dimensional.point_cloud_creator:main',
+            'sim_cam_tf_pub = dimensional.sim_cam_tf_pub:main',
+            'grasp_pipeline_test = dimensional.grasp_pipeline_test:main',
         ],
     },
 )

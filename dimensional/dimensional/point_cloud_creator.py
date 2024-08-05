@@ -8,11 +8,18 @@ from message_filters import Subscriber, ApproximateTimeSynchronizer
 import numpy as np
 import open3d as o3d
 from cv_bridge import CvBridge, CvBridgeError
+from tf2_ros.buffer import Buffer
+from tf2_ros.transform_listener import TransformListener
+from tf2_ros import LookupException, ConnectivityException, ExtrapolationException
 
 class PointCloudCreator(Node):
     def __init__(self):
         super().__init__('point_cloud_creator')
         self.bridge = CvBridge()
+
+        # TF buffer and listener
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
 
         # Subscribers for RGB and Depth images
         self.rgb_sub = Subscriber(self, Image, '/camera/rgb/image_raw')
@@ -60,8 +67,8 @@ class PointCloudCreator(Node):
             intrinsic.set_intrinsics(
                 width=rgb_data.width, 
                 height=rgb_data.height, 
-                fx=525.0,  # Focal length in x axis
-                fy=525.0,  # Focal length in y axis
+                fx=835.555,  # Focal length in x axis
+                fy=835.555,  # Focal length in y axis
                 cx=rgb_data.width / 2,  # Optical center in x axis
                 cy=rgb_data.height / 2  # Optical center in y axis
             )
@@ -81,9 +88,12 @@ class PointCloudCreator(Node):
             # From Open3D camera coordinates to ROS coordinates:
             # x_ros = z_open3d, y_ros = -x_open3d, z_ros = -y_open3d
             transformed_points = np.zeros_like(points)
-            transformed_points[:, 0] = points[:, 2]  # x_ros = z_open3d
-            transformed_points[:, 1] = -points[:, 0]  # y_ros = -x_open3d
-            transformed_points[:, 2] = -points[:, 1]  # z_ros = -y_open3d
+            # transformed_points[:, 0] = points[:, 2]  # x_ros = z_open3d
+            # transformed_points[:, 1] = -points[:, 0]  # y_ros = -x_open3d
+            # transformed_points[:, 2] = -points[:, 1]  # z_ros = -y_open3d
+            transformed_points[:, 0] = -points[:, 1]  # x_ros = z_open3d
+            transformed_points[:, 1] = points[:, 0]  # y_ros = -x_open3d
+            transformed_points[:, 2] = points[:, 2]  # z_ros = -y_open3d
 
             # Check if points and colors are being generated
             if transformed_points.shape[0] == 0:
@@ -119,9 +129,25 @@ class PointCloudCreator(Node):
             ]
 
             # Create the PointCloud2 message
-            header = rgb_data.header
-            header.frame_id = 'world'  # Set the frame to 'world'
+            # header = rgb_data.header
+            # header.frame_id = 'link6'  # Set the frame to 'world'
+            # point_cloud_msg = point_cloud2.create_cloud(header, fields, structured_array)
+            # Adjust timestamp
+            try:
+                # Lookup the latest transform from world to link6
+                transform = self.tf_buffer.lookup_transform('world', 'camera_frame', rclpy.time.Time())
+
+                # Use the transform's timestamp for the point cloud message
+                header = rgb_data.header
+                header.stamp = transform.header.stamp
+                header.frame_id = 'camera_frame'  # Set the frame to 'link6'
+            except (LookupException, ConnectivityException, ExtrapolationException) as ex:
+                self.get_logger().error(f"Could not transform: {ex}")
+                return
+
+            # Create the PointCloud2 message
             point_cloud_msg = point_cloud2.create_cloud(header, fields, structured_array)
+
 
             # Publish the point cloud
             self.point_cloud_pub.publish(point_cloud_msg)
