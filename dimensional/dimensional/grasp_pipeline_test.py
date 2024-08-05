@@ -13,6 +13,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
+from geometry_msgs.msg import PoseStamped
+from moveit_msgs.msg import MoveItErrorCodes
+# from moveit_commander import MoveGroupCommander
+from tf2_ros import TransformListener, Buffer
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
 def show_mask(mask, ax, random_color=False, borders = True):
     if random_color:
@@ -68,19 +73,49 @@ class GraspPipelineTest(Node):
         self.model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id)
 
         self.called = False
+        self.point_cloud_saved = False
+        self.object_pub = False
 
         # Subscribe to the RGB image topic
         self.create_subscription(Image, '/camera/rgb/image_raw', self.image_callback, 10)
 
+        # Subscribe to the point cloud topic
+        self.create_subscription(PointCloud2, '/camera/point_cloud', self.point_cloud_callback, 10)
+
+        # Add new publishers and subscribers
+        self.pointcloud_pub = self.create_publisher(PointCloud2, '/object_pointcloud', 10)
+        
+        # Set up MoveIt2
+        # self.move_group = MoveGroupCommander("arm")  # Replace "arm" with your robot's arm group name
+        
+        # Set up TF listener
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+
+    def point_cloud_callback(self, point_cloud):
+        print("Received point cloud.")
+        self.point_cloud = point_cloud
+        self.point_cloud_saved = True
+        if self.object_pub:
+            # print(self.point_cloud.data.shape)
+            # print(self.object_cloud.data.shape)
+            # self.point_cloud.data = self.object_cloud.data
+            transform = self.tf_buffer.lookup_transform('world', 'link6', rclpy.time.Time())
+            if (self.object_cloud is not None):
+                print("Transforming object point cloud...")
+            self.object_cloud.header.stamp = transform.header.stamp
+            self.pointcloud_pub.publish(self.object_cloud)
+            print("Published object point cloud")
+
     def image_callback(self, image):
-        if (self.called):
+        if (self.called or not self.point_cloud_saved):
             return
 
         self.called = True
         # Convert the ROS Image message to a PIL Image
         img = PILImage.frombytes("RGB", (image.width, image.height), bytes(image.data), "raw")
         # visualize the image
-        img.show()
+        # img.show()
         text = "a coffee mug."
 
         # Perform object detection
@@ -102,17 +137,18 @@ class GraspPipelineTest(Node):
         # img = cv2.cvtColor(cv2.imread("image.jpg"), cv2.COLOR_BGR2RGB)
         # img = img.convert("RGB")
         # convert img to numpy array
-        img_disp = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        # img_disp = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
         for box in results[0]["boxes"]:
             print(box)
             x_min, y_min, x_max, y_max = box
             x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
-            cv2.rectangle(img_disp, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+            # cv2.rectangle(img_disp, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
-        cv2.imshow("image", img_disp)
+        # cv2.imshow("image", img_disp)
         # cv2.waitKey(0) # wait for any key press
 
         # use SAM2 to get segmentation mask of object
+        print("Segmenting object...")
         sam2_checkpoint = "/home/yashas/Documents/thesis/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
         model_cfg = "sam2_hiera_t.yaml"
         sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cpu")
@@ -125,9 +161,117 @@ class GraspPipelineTest(Node):
             box=input_box[None, :],
             multimask_output=False,
         )
-        show_masks(img, masks, scores, box_coords=input_box)
+        # show_masks(img, masks, scores, box_coords=input_box)
 
+        # Get the intersection between point cloud and object mask
+        object_points = self.get_object_points(masks[0], self.point_cloud)
+        
+        # Publish the object point cloud
+        self.publish_object_pointcloud(object_points)
+        
+        # Calculate grasp pose
+        # grasp_pose = self.calculate_grasp_pose(object_points)
+        # print(grasp_pose)
+        
+        # Move robot to grasp pose
+        # self.move_to_grasp_pose(grasp_pose)
         return
+
+    def get_object_points(self, mask, point_cloud):
+        print("Getting object points...")
+        # Convert PointCloud2 to numpy array
+        pc = point_cloud2.read_points(point_cloud, skip_nans=True)
+        points = np.array(list(pc))
+        # points_in_object = np.zeros((1280,800,3), dtype=np.float32)
+        points_in_object = np.copy(points)
+        print(points.shape)
+        print(points[:5])
+
+        print("mask shape")
+        print(mask.shape)
+
+        count = 0
+        for i in range(mask.shape[1]):
+            for j in range(mask.shape[0]):
+                if mask[j][i] == 0:
+                    # points_in_object[i][j][0] = points[j * mask.shape[1] + i][0]
+                    # points_in_object[i][j][1] = points[j * mask.shape[1] + i][1]
+                    # points_in_object[i][j][2] = points[j * mask.shape[1] + i][2]
+                    points_in_object[j * mask.shape[1] + i] = 0.0
+                    # points_in_object[j * mask.shape[1] + i][0]['x'] = 0.0
+                    # points_in_object[j * mask.shape[1] + i][0]['y'] = 0.0
+                    # points_in_object[j * mask.shape[1] + i][0]['z'] = 0.0
+                    count += 1
+        print(points_in_object.shape)
+        print(points_in_object[:5])
+        self.object_points = points_in_object
+        print(f"Removed {count} object points.")
+
+        # Filter out any invalid points (e.g., with z=0 or NaN)
+
+        # return points_in_object
+        return points_in_object
+
+    def publish_object_pointcloud(self, object_points):
+        self.object_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, object_points)
+        self.object_cloud.header.frame_id = self.point_cloud.header.frame_id
+        # self.object_cloud = self.point_cloud
+        # self.object_cloud.data = object_points.tobytes()
+        
+        # self.pointcloud_pub.publish(self.object_cloud)
+        # self.object_cloud = self.point_cloud
+        self.point_cloud_saved = True
+        self.object_pub = True
+
+    def calculate_grasp_pose(self, object_points):
+        # Simple grasp pose calculation - can be improved based on object geometry
+        center = np.mean(object_points, axis=0)
+        
+        # Assume the gripper approaches from above
+        approach_vector = np.array([0, 0, 1])  # Z-axis up
+        
+        # Create a pose
+        pose = PoseStamped()
+        pose.header.frame_id = self.point_cloud.header.frame_id
+        pose.header.stamp = self.get_clock().now().to_msg()
+        pose.pose.position.x = center[0]
+        pose.pose.position.y = center[1]
+        pose.pose.position.z = center[2] + 0.1  # Offset above the object
+        
+        # Set orientation (this is a simple orientation, you might want to improve it)
+        pose.pose.orientation.x = 0.0
+        pose.pose.orientation.y = 0.0
+        pose.pose.orientation.z = 0.0
+        pose.pose.orientation.w = 1.0
+
+        return pose
+
+    def move_to_grasp_pose(self, grasp_pose):
+        # # Transform grasp pose to planning frame if necessary
+        # planning_frame = self.move_group.get_planning_frame()
+        # if grasp_pose.header.frame_id != planning_frame:
+        #     try:
+        #         transform = self.tf_buffer.lookup_transform(
+        #             planning_frame,
+        #             grasp_pose.header.frame_id,
+        #             rclpy.time.Time())
+        #         grasp_pose_transformed = tf2_geometry_msgs.do_transform_pose(grasp_pose, transform)
+        #     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
+        #         self.get_logger().error(f'TF transform failed: {str(e)}')
+        #         return
+
+        # # Set the goal pose
+        # self.move_group.set_pose_target(grasp_pose_transformed)
+
+        # # Plan and execute
+        # success, plan, planning_time, error_code = self.move_group.plan()
+        # if success:
+        #     self.get_logger().info("Planned path to grasp pose successfully!")
+        #     self.move_group.execute(plan, wait=True)
+        #     self.get_logger().info("Executed plan to grasp pose.")
+        # else:
+        #     self.get_logger().error(f"Path planning failed with error code: {error_code}")
+        pass
 
 
 
