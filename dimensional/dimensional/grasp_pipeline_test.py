@@ -194,13 +194,9 @@ class GraspPipelineTest(Node):
         for i in range(mask.shape[1]):
             for j in range(mask.shape[0]):
                 if mask[j][i] == 0:
-                    # points_in_object[i][j][0] = points[j * mask.shape[1] + i][0]
-                    # points_in_object[i][j][1] = points[j * mask.shape[1] + i][1]
-                    # points_in_object[i][j][2] = points[j * mask.shape[1] + i][2]
-                    points_in_object[j * mask.shape[1] + i] = 0.0
-                    # points_in_object[j * mask.shape[1] + i][0]['x'] = 0.0
-                    # points_in_object[j * mask.shape[1] + i][0]['y'] = 0.0
-                    # points_in_object[j * mask.shape[1] + i][0]['z'] = 0.0
+                    points_in_object[j * mask.shape[1] + i]['x'] = 0.0
+                    points_in_object[j * mask.shape[1] + i]['y'] = 0.0
+                    points_in_object[j * mask.shape[1] + i]['z'] = 0.0
                     count += 1
         print(points_in_object.shape)
         print(points_in_object[:5])
@@ -214,13 +210,6 @@ class GraspPipelineTest(Node):
 
     def publish_object_pointcloud(self, object_points):
         self.object_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, object_points)
-        self.object_cloud.header.frame_id = self.point_cloud.header.frame_id
-        # self.object_cloud = self.point_cloud
-        # self.object_cloud.data = object_points.tobytes()
-        
-        # self.pointcloud_pub.publish(self.object_cloud)
-        # self.object_cloud = self.point_cloud
-        self.point_cloud_saved = True
         self.object_pub = True
 
     def calculate_grasp_pose(self, object_points):
