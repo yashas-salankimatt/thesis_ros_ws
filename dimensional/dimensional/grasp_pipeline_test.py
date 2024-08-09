@@ -265,6 +265,7 @@ class GraspPipelineTest(Node):
 
 
 def main(args=None):
+    print("Starting grasp pipeline test node...")
     rclpy.init(args=args)
     node = GraspPipelineTest()
     try:
