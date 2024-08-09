@@ -75,6 +75,9 @@ class GraspPipelineTest(Node):
         self.called = False
         self.point_cloud_saved = False
         self.object_pub = False
+        self.target_pub = False
+        self.grasp_pub = False
+        self.target_pose_pub = False
 
         # Subscribe to the RGB image topic
         self.create_subscription(Image, '/camera/rgb/image_raw', self.image_callback, 10)
@@ -84,6 +87,9 @@ class GraspPipelineTest(Node):
 
         # Add new publishers and subscribers
         self.pointcloud_pub = self.create_publisher(PointCloud2, '/object_pointcloud', 10)
+        self.target_pointcloud_pub = self.create_publisher(PointCloud2, '/target_pointcloud', 10)
+        self.grasp_pose_pub = self.create_publisher(PoseStamped, '/grasp_pose', 10)
+        self.target_pose_publisher = self.create_publisher(PoseStamped, '/target_pose', 10)
         
         # Set up MoveIt2
         # self.move_group = MoveGroupCommander("arm")  # Replace "arm" with your robot's arm group name
@@ -96,16 +102,27 @@ class GraspPipelineTest(Node):
         print("Received point cloud.")
         self.point_cloud = point_cloud
         self.point_cloud_saved = True
+        transform = self.tf_buffer.lookup_transform('world', 'link6', rclpy.time.Time())
         if self.object_pub:
             # print(self.point_cloud.data.shape)
             # print(self.object_cloud.data.shape)
             # self.point_cloud.data = self.object_cloud.data
-            transform = self.tf_buffer.lookup_transform('world', 'link6', rclpy.time.Time())
-            if (self.object_cloud is not None):
-                print("Transforming object point cloud...")
             self.object_cloud.header.stamp = transform.header.stamp
             self.pointcloud_pub.publish(self.object_cloud)
             print("Published object point cloud")
+        if self.target_pub:
+            self.target_cloud.header.stamp = transform.header.stamp
+            self.target_pointcloud_pub.publish(self.target_cloud)
+            print("Published target point cloud")
+        if self.grasp_pub:
+            self.grasp_pose.header.stamp = transform.header.stamp
+            self.grasp_pose_pub.publish(self.grasp_pose)
+            print("Published grasp pose")
+        if self.target_pose_pub:
+            print("Target pose")
+            self.target_pose.header.stamp = transform.header.stamp
+            self.target_pose_publisher.publish(self.target_pose)
+            print("Published target pose")
 
     def image_callback(self, image):
         if (self.called or not self.point_cloud_saved):
@@ -149,7 +166,8 @@ class GraspPipelineTest(Node):
 
         # use SAM2 to get segmentation mask of object
         print("Segmenting object...")
-        sam2_checkpoint = "/home/yashas/Documents/thesis/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
+        # sam2_checkpoint = "/home/yashas/Documents/thesis/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
+        sam2_checkpoint = "/home/ros/deps/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
         model_cfg = "sam2_hiera_t.yaml"
         sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cpu")
         predictor = SAM2ImagePredictor(sam2_model)
@@ -168,10 +186,64 @@ class GraspPipelineTest(Node):
         
         # Publish the object point cloud
         self.publish_object_pointcloud(object_points)
-        
+
+        target_text = "box."
+        target_inputs = self.processor(images=img, text=target_text, return_tensors="pt")
+        with torch.no_grad():
+            target_outputs = self.model(**target_inputs)
+
+        target_results = self.processor.post_process_grounded_object_detection(
+            target_outputs,
+            target_inputs.input_ids,
+            box_threshold=0.4,
+            text_threshold=0.3,
+            target_sizes=[img.size[::-1]]
+        )
+
+        print(target_results)
+
+        # visualize bounding boxes on top of image
+        # img = cv2.cvtColor(cv2.imread("image.jpg"), cv2.COLOR_BGR2RGB)
+        # img = img.convert("RGB")
+        # convert img to numpy array
+        # img_disp = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        for box in target_results[0]["boxes"]:
+            print(box)
+            x_min, y_min, x_max, y_max = box
+            x_min, y_min, x_max, y_max = int(x_min), int(y_min), int(x_max), int(y_max)
+            # cv2.rectangle(img_disp, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+
+        print("Segmenting target...")
+        predictor.set_image(img)
+        input_box = np.array([x_min, y_min, x_max, y_max])
+        masks, scores, _ = predictor.predict(
+            point_coords=None,
+            point_labels=None,
+            box=input_box[None, :],
+            multimask_output=False,
+        )
+        # show_masks(img, masks, scores, box_coords=input_box)
+
+        # Get the intersection between point cloud and object mask
+        print("Getting target points...")
+        target_points = self.get_object_points(masks[0], self.point_cloud)
+
+        # Publish the object point cloud
+        self.publish_target_pointcloud(target_points)
+
         # Calculate grasp pose
-        # grasp_pose = self.calculate_grasp_pose(object_points)
-        # print(grasp_pose)
+        print("Calculating grasp pose...")
+        self.grasp_pose = self.calculate_grasp_pose(object_points)
+        # self.publish_grasp_pose(self.grasp_pose)
+        self.grasp_pub = True
+        print(self.grasp_pose)
+
+        # Calculate target pose
+        print("Calculating target pose...")
+        self.target_pose = self.calculate_grasp_pose(target_points)
+        # self.publish_target_pose(self.target_pose)
+        self.target_pose_pub = True
+        print(self.target_pose)
         
         # Move robot to grasp pose
         # self.move_to_grasp_pose(grasp_pose)
@@ -212,20 +284,30 @@ class GraspPipelineTest(Node):
         self.object_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, object_points)
         self.object_pub = True
 
+    def publish_target_pointcloud(self, target_points):
+        self.target_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, target_points)
+        self.target_pub = True
+
     def calculate_grasp_pose(self, object_points):
         # Simple grasp pose calculation - can be improved based on object geometry
-        center = np.mean(object_points, axis=0)
-        
-        # Assume the gripper approaches from above
-        approach_vector = np.array([0, 0, 1])  # Z-axis up
+        centroid = [0, 0, 0]
+        count = 0
+        for i in range(len(object_points)):
+            if object_points[i]['x'] == 0.0 and object_points[i]['y'] == 0.0 and object_points[i]['z'] == 0.0:
+                continue
+            centroid[0] += object_points[i]['x']
+            centroid[1] += object_points[i]['y']
+            centroid[2] += object_points[i]['z']
+            count += 1
+        centroid = np.array(centroid) / len(object_points)
         
         # Create a pose
         pose = PoseStamped()
         pose.header.frame_id = self.point_cloud.header.frame_id
         pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x = center[0]
-        pose.pose.position.y = center[1]
-        pose.pose.position.z = center[2] + 0.1  # Offset above the object
+        pose.pose.position.x = centroid[0]
+        pose.pose.position.y = centroid[1]
+        pose.pose.position.z = centroid[2]
         
         # Set orientation (this is a simple orientation, you might want to improve it)
         pose.pose.orientation.x = 0.0
