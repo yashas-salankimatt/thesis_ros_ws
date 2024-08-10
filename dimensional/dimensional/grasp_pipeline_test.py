@@ -127,7 +127,7 @@ class GraspPipelineTest(Node):
         self.target_pose_publisher = self.create_publisher(PoseStamped, '/target_pose', 10)
         
         # Set up MoveIt2
-        self.plan_env = MoveItPy(node_name="moveit_py")
+        self.plan_env = MoveItPy(node_name="grasp_pipeline_test")
         self.arm = self.plan_env.get_planning_component("xarm6")
 
         self.arm.set_start_state_to_current_state()

@@ -6,6 +6,8 @@
   <description>TODO: Package description</description>
   <maintainer email="yashas.salankimatt@gmail.com">yashas</maintainer>
   <license>TODO: License declaration</license>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
