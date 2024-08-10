@@ -15,7 +15,7 @@ from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from geometry_msgs.msg import PoseStamped
 from moveit_msgs.msg import MoveItErrorCodes
-# from moveit_commander import MoveGroupCommander
+from moveit_configs_utils import MoveItConfigsBuilder, MoveItConfigs
 from tf2_ros import TransformListener, Buffer
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 
@@ -291,23 +291,45 @@ class GraspPipelineTest(Node):
     def calculate_grasp_pose(self, object_points):
         # Simple grasp pose calculation - can be improved based on object geometry
         centroid = [0, 0, 0]
+        min_dim = [float('inf'), float('inf'), float('inf')]
+        max_dim = [float('-inf'), float('-inf'), float('-inf')]
         count = 0
         for i in range(len(object_points)):
             if object_points[i]['x'] == 0.0 and object_points[i]['y'] == 0.0 and object_points[i]['z'] == 0.0:
                 continue
+            if object_points[i]['x'] < min_dim[0]:
+                min_dim[0] = object_points[i]['x']
+            if object_points[i]['y'] < min_dim[1]:
+                min_dim[1] = object_points[i]['y']
+            if object_points[i]['z'] < min_dim[2]:
+                min_dim[2] = object_points[i]['z']
+            if object_points[i]['x'] > max_dim[0]:
+                max_dim[0] = object_points[i]['x']
+            if object_points[i]['y'] > max_dim[1]:
+                max_dim[1] = object_points[i]['y']
+            if object_points[i]['z'] > max_dim[2]:
+                max_dim[2] = object_points[i]['z']
+
             centroid[0] += object_points[i]['x']
             centroid[1] += object_points[i]['y']
             centroid[2] += object_points[i]['z']
             count += 1
         centroid = np.array(centroid) / len(object_points)
+
+        self.get_logger().info(f"Object centroid: {centroid}")
+        self.get_logger().info(f"Object min dim: {min_dim}")
+        self.get_logger().info(f"Object max dim: {max_dim}")
         
         # Create a pose
         pose = PoseStamped()
         pose.header.frame_id = self.point_cloud.header.frame_id
         pose.header.stamp = self.get_clock().now().to_msg()
-        pose.pose.position.x = centroid[0]
-        pose.pose.position.y = centroid[1]
-        pose.pose.position.z = centroid[2]
+        # pose.pose.position.x = centroid[0]
+        # pose.pose.position.y = centroid[1]
+        # pose.pose.position.z = centroid[2]
+        pose.pose.position.x = (min_dim[0] + max_dim[0]) / 2
+        pose.pose.position.y = (min_dim[1] + max_dim[1]) / 2
+        pose.pose.position.z = (min_dim[2] + max_dim[2]) / 2
         
         # Set orientation (this is a simple orientation, you might want to improve it)
         pose.pose.orientation.x = 0.0
