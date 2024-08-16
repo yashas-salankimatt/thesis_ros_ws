@@ -1,4 +1,4 @@
-message(STATUS "Processing CMakeLists.txt for dim_cpp")
+# message(WARNING "Processing CMakeLists.txt for dim_cpp")
 
 cmake_minimum_required(VERSION 3.5)
 project(dim_cpp)
@@ -7,7 +7,7 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-message(STATUS "---------------------------------------------------------------------")
+# message(WARNING "---------------------------------------------------------------------")
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -25,18 +25,21 @@ find_package(Eigen3 REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(xarm_msgs REQUIRED)
 find_package(xarm_planner REQUIRED)
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
-
 include_directories(${xarm_planner_INCLUDE_DIRS})
-message(STATUS "xarm_planner include dirs: ${xarm_planner_INCLUDE_DIRS}")
 
+# message(WARNING "xarm_planner include dirs: ${xarm_planner_INCLUDE_DIRS}")
+# message(WARNING "xarm_planner libraries: ${xarm_planner_LIBRARIES}")
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
   set(ament_cmake_copyright_FOUND TRUE)
+
   # the following line skips cpplint (only works in a git repo)
   # comment the line when this package is in a git repo and when
   # a copyright and license is added to all source files
@@ -47,6 +50,19 @@ endif()
 add_executable(moveit_converter src/moveit_converter.cpp)
 target_include_directories(moveit_converter PUBLIC
   ${xarm_planner_INCLUDE_DIRS}
+)
+
+# Link against the required libraries
+target_link_libraries(moveit_converter
+  ${xarm_planner_LIBRARIES}
+  ${rclcpp_LIBRARIES}
+  ${moveit_core_LIBRARIES}
+  ${moveit_ros_planning_interface_LIBRARIES}
+  ${moveit_visual_tools_LIBRARIES}
+  ${pluginlib_LIBRARIES}
+  ${geometry_msgs_LIBRARIES}
+  ${moveit_msgs_LIBRARIES}
+  Eigen3::Eigen
 )
 ament_target_dependencies(moveit_converter
   rclcpp

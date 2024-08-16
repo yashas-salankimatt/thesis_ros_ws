@@ -14,13 +14,14 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic
     -Wno-sign-compare
-    -Wno-unused-parameter 
+    -Wno-unused-parameter
     -Wno-unused-variable
   )
 endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -42,7 +43,7 @@ include_directories(
 add_library(xarm_planner SHARED
   src/xarm_planner.cpp
 )
-ament_target_dependencies(xarm_planner 
+ament_target_dependencies(xarm_planner
   moveit_ros_planning_interface
   ${dependencies}
 )
@@ -51,7 +52,7 @@ add_executable(xarm_planner_node src/xarm_planner_node.cpp)
 ament_target_dependencies(xarm_planner_node
   ${dependencies}
 )
-target_link_libraries(xarm_planner_node 
+target_link_libraries(xarm_planner_node
   xarm_planner
   ${ament_LIBRARIES}
 )
@@ -60,7 +61,7 @@ add_executable(xarm_gripper_planner_node src/xarm_gripper_planner_node.cpp)
 ament_target_dependencies(xarm_gripper_planner_node
   ${dependencies}
 )
-target_link_libraries(xarm_gripper_planner_node 
+target_link_libraries(xarm_gripper_planner_node
   xarm_planner
   ${ament_LIBRARIES}
 )
@@ -69,7 +70,7 @@ add_executable(test_xarm_planner_api_joint test/test_xarm_planner_api_joint.cpp)
 ament_target_dependencies(test_xarm_planner_api_joint
   ${dependencies}
 )
-target_link_libraries(test_xarm_planner_api_joint 
+target_link_libraries(test_xarm_planner_api_joint
   xarm_planner
   ${ament_LIBRARIES}
 )
@@ -78,7 +79,7 @@ add_executable(test_dual_xarm_planner_api_joint test/test_dual_xarm_planner_api_
 ament_target_dependencies(test_dual_xarm_planner_api_joint
   ${dependencies}
 )
-target_link_libraries(test_dual_xarm_planner_api_joint 
+target_link_libraries(test_dual_xarm_planner_api_joint
   xarm_planner
   ${ament_LIBRARIES}
 )
@@ -87,7 +88,7 @@ add_executable(test_xarm_planner_api_pose test/test_xarm_planner_api_pose.cpp)
 ament_target_dependencies(test_xarm_planner_api_pose
   ${dependencies}
 )
-target_link_libraries(test_xarm_planner_api_pose 
+target_link_libraries(test_xarm_planner_api_pose
   xarm_planner
   ${ament_LIBRARIES}
 )
@@ -96,7 +97,7 @@ add_executable(test_xarm_gripper_planner_api_joint test/test_xarm_gripper_planne
 ament_target_dependencies(test_xarm_gripper_planner_api_joint
   ${dependencies}
 )
-target_link_libraries(test_xarm_gripper_planner_api_joint 
+target_link_libraries(test_xarm_gripper_planner_api_joint
   xarm_planner
   ${ament_LIBRARIES}
 )
@@ -123,12 +124,13 @@ ament_target_dependencies(test_lite_gripper_realmove
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+
   # the following line skips the linter which checks for copyrights
   # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
+  # set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
   # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
+  # set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
 
@@ -138,7 +140,7 @@ install(
 )
 
 install(
-  TARGETS 
+  TARGETS
   xarm_planner
   xarm_planner_node
   xarm_gripper_planner_node
@@ -154,6 +156,13 @@ install(
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
+
+ament_export_libraries(xarm_planner)
+ament_export_dependencies(
+  moveit_ros_planning_interface
+  ${dependencies}
+)
+ament_export_include_directories(include)
 
 install(DIRECTORY
   launch
