@@ -14,12 +14,12 @@ import matplotlib.pyplot as plt
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from geometry_msgs.msg import PoseStamped
-from moveit_msgs.msg import MoveItErrorCodes
-from moveit_configs_utils import MoveItConfigsBuilder, MoveItConfigs
+# from moveit_msgs.msg import MoveItErrorCodes
+# from moveit_configs_utils import MoveItConfigsBuilder, MoveItConfigs
 from tf2_ros import TransformListener, Buffer
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-from moveit.core.robot_state import RobotState
-from moveit.planning import MoveItPy, MultiPipelinePlanRequestParameters
+# from moveit.core.robot_state import RobotState
+# from moveit.planning import MoveItPy, MultiPipelinePlanRequestParameters
 import time
 
 def show_mask(mask, ax, random_color=False, borders = True):
@@ -125,26 +125,6 @@ class GraspPipelineTest(Node):
         self.target_pointcloud_pub = self.create_publisher(PointCloud2, '/target_pointcloud', 10)
         self.grasp_pose_pub = self.create_publisher(PoseStamped, '/grasp_pose', 10)
         self.target_pose_publisher = self.create_publisher(PoseStamped, '/target_pose', 10)
-        
-        # Set up MoveIt2
-        self.plan_env = MoveItPy(node_name="grasp_pipeline_test")
-        self.arm = self.plan_env.get_planning_component("xarm6")
-
-        self.arm.set_start_state_to_current_state()
-
-        pose_goal = PoseStamped()
-        pose_goal.header.frame_id = "world"
-        pose_goal.pose.position.x = 0.5
-        pose_goal.pose.position.y = 0.0
-        pose_goal.pose.position.z = 0.5
-        pose_goal.pose.orientation.x = 0.0
-        pose_goal.pose.orientation.y = 0.0
-        pose_goal.pose.orientation.z = 0.0
-        pose_goal.pose.orientation.w = 1.0
-        self.arm.set_goal_state(pose_stamped_msg=pose_goal, pose_link="link6")
-
-        plan_and_execute(self.plan_env, self.arm, self.get_logger(), sleep_time=3.0)
-
         
         # Set up TF listener
         self.tf_buffer = Buffer()

@@ -1,67 +1,87 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped
+from std_msgs.msg import Float32
 import time
+import threading
+import tf2_ros
+import tf2_geometry_msgs
 
 class PosePublisher(Node):
     def __init__(self):
         super().__init__('pose_publisher')
+
+        # Subscribers
+        self.grasp_pose_sub = self.create_subscription(PoseStamped, '/grasp_pose', self.grasp_pose_callback, 10)
+        self.target_pose_sub = self.create_subscription(PoseStamped, '/target_pose', self.target_pose_callback, 10)
+
+        # Publishers
         self.publisher_ = self.create_publisher(Pose, '/curr_target_pose', 10)
-        self.timer = self.create_timer(2.0, self.publish_poses)
+        self.gripper_position_pub = self.create_publisher(Float32, '/gripper_position', 10)
 
-        # Define the hardcoded poses
-        self.poses = []
-        pose1 = Pose()
-        pose1.position.x = 0.3
-        pose1.position.y = -0.1
-        pose1.position.z = 0.2
-        pose1.orientation.x = 1.0
-        pose1.orientation.y = 0.0
-        pose1.orientation.z = 0.0
-        pose1.orientation.w = 0.0
-        self.poses.append(pose1)
+        self.tf_buffer = tf2_ros.Buffer()
+        self.tf_listener = tf2_ros.TransformListener(self.tf_buffer, self)
 
-        pose2 = Pose()
-        pose2.position.x = 0.3
-        pose2.position.y = 0.1
-        pose2.position.z = 0.2
-        pose2.orientation.x = 1.0
-        pose2.orientation.y = 0.0
-        pose2.orientation.z = 0.0
-        pose2.orientation.w = 0.0
-        self.poses.append(pose2)
+        self.grasp_pose_ = None
+        self.target_pose_ = None
 
-        pose3 = Pose()
-        pose3.position.x = 0.4
-        pose3.position.y = -0.1
-        pose3.position.z = 0.2
-        pose3.orientation.x = 1.0
-        pose3.orientation.y = 0.0
-        pose3.orientation.z = 0.0
-        pose3.orientation.w = 0.0
-        self.poses.append(pose3)
+        self.lock_ = threading.Lock()
+        self.called = False
 
-        pose4 = Pose()
-        pose4.position.x = 0.4
-        pose4.position.y = 0.1
-        pose4.position.z = 0.2
-        pose4.orientation.x = 1.0
-        pose4.orientation.y = 0.0
-        pose4.orientation.z = 0.0
-        pose4.orientation.w = 0.0
-        self.poses.append(pose4)
+    def grasp_pose_callback(self, msg):
+        with self.lock_:
+            self.grasp_pose_ = msg
+            self.try_execute()
 
-        self.current_pose_index = 0
+    def target_pose_callback(self, msg):
+        with self.lock_:
+            self.target_pose_ = msg
+            self.try_execute()
 
-    def publish_poses(self):
-        if self.current_pose_index < len(self.poses):
-            current_pose = self.poses[self.current_pose_index]
-            self.publisher_.publish(current_pose)
-            self.get_logger().info(f'Published pose {self.current_pose_index + 1}')
-            self.current_pose_index += 1
-        else:
-            self.get_logger().info('All poses published.')
-            self.timer.cancel()
+    def try_execute(self):
+        if self.grasp_pose_ is not None and self.target_pose_ is not None and not self.called:
+            self.called = True
+            self.get_logger().info('Executing grasp and target poses.')
+
+            # Execute to grasp pose
+            self.execute_pose(self.grasp_pose_)
+            self.publish_gripper_position(0.1)
+
+            # Execute to target pose
+            self.execute_pose(self.target_pose_)
+            self.publish_gripper_position(0.2)
+
+            # Clear the poses after execution
+            self.grasp_pose_ = None
+            self.target_pose_ = None
+
+    def execute_pose(self, pose_stamped):
+        try:
+            # Transform the pose to 'link_base' frame
+            transform = self.tf_buffer.lookup_transform(
+                'link_base',  # target frame
+                pose_stamped.header.frame_id,  # source frame
+                rclpy.time.Time())  # time
+            
+            # Extract Pose from PoseStamped
+            posepub = pose_stamped.pose
+
+            transformed_pose = tf2_geometry_msgs.do_transform_pose(posepub, transform)
+
+            # Extract Pose from PoseStamped
+            posepub = transformed_pose
+
+            self.publisher_.publish(posepub)
+            self.get_logger().info(f'Executing pose in link_base frame: {posepub}')
+
+        except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
+            self.get_logger().error(f'Could not transform pose: {e}')
+
+    def publish_gripper_position(self, position):
+        msg = Float32()
+        msg.data = position
+        self.gripper_position_pub.publish(msg)
+        self.get_logger().info(f'Published gripper position: {position}')
 
 def main(args=None):
     rclpy.init(args=args)
