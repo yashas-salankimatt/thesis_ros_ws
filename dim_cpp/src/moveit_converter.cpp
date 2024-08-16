@@ -1,98 +1,95 @@
-/* Copyright 2021 UFACTORY Inc. All Rights Reserved.
- *
- * Software License Agreement (BSD License)
- *
- * Author: Vinman <vinman.cub@gmail.com>
- ============================================================================*/
-
 #include "xarm_planner/xarm_planner.h"
+#include <geometry_msgs/msg/pose.hpp>
+#include <std_msgs/msg/int8.hpp>
+#include <rclcpp/rclcpp.hpp>
 
-void exit_sig_handler(int signum)
+class XArmControllerNode : public rclcpp::Node
 {
-    fprintf(stderr, "[test_xarm_planner_api_pose] Ctrl-C caught, exit process...\n");
-    exit(-1);
-}
+public:
+    XArmControllerNode() : Node("xarm_controller_node"), is_executing_(false)
+    {
+        // Initialize the planner
+        node_ = rclcpp::Node::make_shared("xarm_controller_node");
+        int dof;
+        node_->get_parameter_or("dof", dof, 6);
+        std::string robot_type;
+        node_->get_parameter_or("robot_type", robot_type, std::string("xarm"));
+        std::string group_name = robot_type;
+        if (robot_type == "xarm" || robot_type == "lite")
+            group_name = robot_type + std::to_string(dof);
+        std::string prefix;
+        node_->get_parameter_or("prefix", prefix, std::string(""));
+        if (prefix != "")
+        {
+            group_name = prefix + group_name;
+        }
+
+        RCLCPP_INFO(node_->get_logger(), "namespace: %s, group_name: %s", node_->get_namespace(), group_name.c_str());
+
+        planner_ = std::make_shared<xarm_planner::XArmPlanner>(node_, group_name);
+
+        // Subscriber for the target pose
+        target_pose_sub_ = this->create_subscription<geometry_msgs::msg::Pose>(
+            "/curr_target_pose", 10, std::bind(&XArmControllerNode::poseCallback, this, std::placeholders::_1));
+
+        // Publisher for the robot status
+        status_pub_ = this->create_publisher<std_msgs::msg::Int8>("/robot_status", 10);
+
+        // Initialize robot status as free (0)
+        publishStatus(0);
+    }
+
+private:
+    void poseCallback(const geometry_msgs::msg::Pose::SharedPtr msg)
+    {
+        if (is_executing_)
+        {
+            RCLCPP_WARN(this->get_logger(), "Robot is already executing a trajectory.");
+            return;
+        }
+
+        is_executing_ = true;
+        publishStatus(1); // Robot is busy
+
+        RCLCPP_INFO(this->get_logger(), "Received new target pose. Planning and executing...");
+
+        // bool success = planner_->plan_and_execute(*msg);
+        bool planned = planner_->planPoseTarget(*msg);
+        bool executed = planner_->executePath();
+        bool success = planned && executed;
+
+        if (success)
+        {
+            RCLCPP_INFO(this->get_logger(), "Motion execution successful.");
+        }
+        else
+        {
+            RCLCPP_ERROR(this->get_logger(), "Motion execution failed.");
+        }
+
+        is_executing_ = false;
+        publishStatus(0); // Robot is free again
+    }
+
+    void publishStatus(int8_t status)
+    {
+        auto status_msg = std_msgs::msg::Int8();
+        status_msg.data = status;
+        status_pub_->publish(status_msg);
+    }
+
+    rclcpp::Node::SharedPtr node_;
+    std::shared_ptr<xarm_planner::XArmPlanner> planner_;
+    rclcpp::Subscription<geometry_msgs::msg::Pose>::SharedPtr target_pose_sub_;
+    rclcpp::Publisher<std_msgs::msg::Int8>::SharedPtr status_pub_;
+    bool is_executing_;
+};
 
 int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
-    rclcpp::NodeOptions node_options;
-    node_options.automatically_declare_parameters_from_overrides(true);
-    std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("test_xarm_planner_api_pose", node_options);
-    RCLCPP_INFO(node->get_logger(), "test_xarm_planner_api_pose start");
-
-    signal(SIGINT, exit_sig_handler);
-
-    int dof;
-    node->get_parameter_or("dof", dof, 6);
-    std::string robot_type;
-    node->get_parameter_or("robot_type", robot_type, std::string("xarm"));
-    std::string group_name = robot_type;
-    if (robot_type == "xarm" || robot_type == "lite")
-        group_name = robot_type + std::to_string(dof);
-    std::string prefix;
-    node->get_parameter_or("prefix", prefix, std::string(""));
-    if (prefix != "")
-    {
-        group_name = prefix + group_name;
-    }
-
-    RCLCPP_INFO(node->get_logger(), "namespace: %s, group_name: %s", node->get_namespace(), group_name.c_str());
-
-    xarm_planner::XArmPlanner planner(node, group_name);
-
-    geometry_msgs::msg::Pose target_pose1;
-    target_pose1.position.x = 0.3;
-    target_pose1.position.y = -0.1;
-    target_pose1.position.z = 0.2;
-    target_pose1.orientation.x = 1;
-    target_pose1.orientation.y = 0;
-    target_pose1.orientation.z = 0;
-    target_pose1.orientation.w = 0;
-
-    geometry_msgs::msg::Pose target_pose2;
-    target_pose2.position.x = 0.3;
-    target_pose2.position.y = 0.1;
-    target_pose2.position.z = 0.2;
-    target_pose2.orientation.x = 1;
-    target_pose2.orientation.y = 0;
-    target_pose2.orientation.z = 0;
-    target_pose2.orientation.w = 0;
-
-    geometry_msgs::msg::Pose target_pose3;
-    target_pose3.position.x = 0.3;
-    target_pose3.position.y = 0.1;
-    target_pose3.position.z = 0.4;
-    target_pose3.orientation.x = 1;
-    target_pose3.orientation.y = 0;
-    target_pose3.orientation.z = 0;
-    target_pose3.orientation.w = 0;
-
-    geometry_msgs::msg::Pose target_pose4;
-    target_pose4.position.x = 0.3;
-    target_pose4.position.y = -0.1;
-    target_pose4.position.z = 0.4;
-    target_pose4.orientation.x = 1;
-    target_pose4.orientation.y = 0;
-    target_pose4.orientation.z = 0;
-    target_pose4.orientation.w = 0;
-
-    while (rclcpp::ok())
-    {
-        planner.planPoseTarget(target_pose1);
-        planner.executePath();
-        RCLCPP_INFO(node->get_logger(), "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-
-        planner.planPoseTarget(target_pose2);
-        planner.executePath();
-
-        planner.planPoseTarget(target_pose3);
-        planner.executePath();
-
-        planner.planPoseTarget(target_pose4);
-        planner.executePath();
-    }
-
-    RCLCPP_INFO(node->get_logger(), "test_xarm_planner_api_pose over");
+    auto node = std::make_shared<XArmControllerNode>();
+    rclcpp::spin(node);
+    rclcpp::shutdown();
     return 0;
 }
