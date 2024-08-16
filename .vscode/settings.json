@@ -1,0 +1,8 @@
+{
+    "python.analysis.extraPaths": [
+        "/opt/ros/humble/install",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/home/ros/ws_moveit2/install",
+        "./install/uf_ros_lib/lib/python3.10/site-packages"
+    ]
+}

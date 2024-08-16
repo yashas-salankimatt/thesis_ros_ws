@@ -195,6 +195,12 @@ void XArmROSClient::init(rclcpp::Node::SharedPtr& node, std::string hw_ns)
     client_load_trajectory_ = _create_client<xarm_msgs::srv::TrajCtrl>("load_trajectory");
     
     client_playback_trajectory_ = _create_client<xarm_msgs::srv::TrajPlay>("playback_trajectory");
+
+    std::thread th([this]() -> void {
+        RCLCPP_INFO(node_->get_logger(), "ＳＰＩＮ () !!!!! **************************************");
+        rclcpp::spin(node_);
+    });
+    th.detach();
 }
 
 template<typename ServiceT>
@@ -203,7 +209,7 @@ typename rclcpp::Client<ServiceT>::SharedPtr XArmROSClient::_create_client(const
     return node_->create_client<ServiceT>(hw_ns_ + "/" + service_name);
 }
 
-template<typename ServiceT, typename SharedRequest = typename ServiceT::Request::SharedPtr>
+template<typename ServiceT, typename SharedRequest>
 int XArmROSClient::_call_request(std::shared_ptr<ServiceT> client, SharedRequest req)
 {
     bool is_try_again = false;
@@ -218,11 +224,12 @@ int XArmROSClient::_call_request(std::shared_ptr<ServiceT> client, SharedRequest
         }
     }
     auto result_future = client->async_send_request(req);
-    if (rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS)
-    {
-        RCLCPP_ERROR(node_->get_logger(), "Failed to call service %s", client->get_service_name());
-        return SERVICE_CALL_FAILED;
-    }
+    // new 20240808 comment out
+    // if (rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS)
+    // {
+    //     RCLCPP_ERROR(node_->get_logger(), "Failed to call service %s", client->get_service_name());
+    //     return SERVICE_CALL_FAILED;
+    // }
     auto res = result_future.get();
     if (res->message.size() != 0)
         RCLCPP_DEBUG(node_->get_logger(), "call service %s, ret=%d, message(%s)", client->get_service_name(), res->ret, res->message.c_str());
@@ -231,7 +238,7 @@ int XArmROSClient::_call_request(std::shared_ptr<ServiceT> client, SharedRequest
     return res->ret;
 }
 
-template<typename ServiceT, typename SharedRequest = typename ServiceT::Request::SharedPtr, typename SharedResponse = typename ServiceT::Response::SharedPtr>
+template<typename ServiceT, typename SharedRequest, typename SharedResponse>
 int XArmROSClient::_call_request(std::shared_ptr<ServiceT> client, SharedRequest req, SharedResponse& res)
 {
     bool is_try_again = false;
@@ -246,11 +253,12 @@ int XArmROSClient::_call_request(std::shared_ptr<ServiceT> client, SharedRequest
         }
     }
     auto result_future = client->async_send_request(req);
-    if (rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS)
-    {
-        RCLCPP_ERROR(node_->get_logger(), "Failed to call service %s", client->get_service_name());
-        return SERVICE_CALL_FAILED;
-    }
+    // new 20240808 comment out
+    // if (rclcpp::spin_until_future_complete(node_, result_future) != rclcpp::FutureReturnCode::SUCCESS)
+    // {
+    //     RCLCPP_ERROR(node_->get_logger(), "Failed to call service %s", client->get_service_name());
+    //     return SERVICE_CALL_FAILED;
+    // }
     res = result_future.get();
     if (res->message.size() != 0)
         RCLCPP_DEBUG(node_->get_logger(), "call service %s, ret=%d, message(%s)", client->get_service_name(), res->ret, res->message.c_str());

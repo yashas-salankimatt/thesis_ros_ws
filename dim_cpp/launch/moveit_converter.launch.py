@@ -8,7 +8,7 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
 from uf_ros_lib.moveit_configs_builder import MoveItConfigsBuilder
-# from uf_ros_lib.uf_robot_utils import generate_ros2_control_params_temp_file
+from uf_ros_lib.uf_robot_utils import generate_ros2_control_params_temp_file
 
 def launch_setup(context, *args, **kwargs):
     dof = LaunchConfiguration('dof', default=6)
@@ -51,16 +51,16 @@ def launch_setup(context, *args, **kwargs):
     controllers_name = 'fake_controllers'
     xarm_type = '{}{}'.format(robot_type.perform(context), dof.perform(context) if robot_type.perform(context) in ('xarm', 'lite') else '')
 
-    # ros2_control_params = generate_ros2_control_params_temp_file(
-    #     os.path.join(get_package_share_directory('xarm_controller'), 'config', '{}_controllers.yaml'.format(xarm_type)),
-    #     prefix=prefix.perform(context), 
-    #     add_gripper=add_gripper.perform(context) in ('True', 'true'),
-    #     add_bio_gripper=add_bio_gripper.perform(context) in ('True', 'true'),
-    #     ros_namespace=ros_namespace,
-    #     robot_type=robot_type.perform(context)
-    # )
+    ros2_control_params = generate_ros2_control_params_temp_file(
+        os.path.join(get_package_share_directory('xarm_controller'), 'config', '{}_controllers.yaml'.format(xarm_type)),
+        prefix=prefix.perform(context), 
+        add_gripper=add_gripper.perform(context) in ('True', 'true'),
+        add_bio_gripper=add_bio_gripper.perform(context) in ('True', 'true'),
+        ros_namespace=ros_namespace,
+        robot_type=robot_type.perform(context)
+    )
 
-    moveit_config = MoveItConfigsBuilder(
+    moveit_config = (MoveItConfigsBuilder(
         context=context,
         controllers_name=controllers_name,
         dof=dof,
@@ -77,8 +77,8 @@ def launch_setup(context, *args, **kwargs):
         attach_rpy=attach_rpy,
         mesh_suffix=mesh_suffix,
         kinematics_suffix=kinematics_suffix,
-        # ros2_control_plugin=ros2_control_plugin,
-        # ros2_control_params=ros2_control_params,
+        ros2_control_plugin=ros2_control_plugin,
+        ros2_control_params=ros2_control_params,
         add_gripper=add_gripper,
         add_vacuum_gripper=add_vacuum_gripper,
         add_bio_gripper=add_bio_gripper,
@@ -96,7 +96,8 @@ def launch_setup(context, *args, **kwargs):
         geometry_mesh_origin_rpy=geometry_mesh_origin_rpy,
         geometry_mesh_tcp_xyz=geometry_mesh_tcp_xyz,
         geometry_mesh_tcp_rpy=geometry_mesh_tcp_rpy,
-    ).to_moveit_configs()
+    ).planning_pipelines(pipelines=["ompl"])
+    .to_moveit_configs())
 
     moveit_converter_node = Node(
         package='dim_cpp',
