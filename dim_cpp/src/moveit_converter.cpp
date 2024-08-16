@@ -81,6 +81,7 @@ int main(int argc, char **argv)
     {
         planner.planPoseTarget(target_pose1);
         planner.executePath();
+        RCLCPP_INFO(node->get_logger(), "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 
         planner.planPoseTarget(target_pose2);
         planner.executePath();
