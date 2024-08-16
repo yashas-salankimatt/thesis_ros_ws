@@ -4,7 +4,7 @@
  *
  * Author: Vinman <vinman.cub@gmail.com>
  ============================================================================*/
- 
+
 #include "xarm_planner/xarm_planner.h"
 
 void exit_sig_handler(int signum)
@@ -13,7 +13,7 @@ void exit_sig_handler(int signum)
     exit(-1);
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     rclcpp::init(argc, argv);
     rclcpp::NodeOptions node_options;
@@ -24,7 +24,7 @@ int main(int argc, char** argv)
     signal(SIGINT, exit_sig_handler);
 
     int dof;
-    node->get_parameter_or("dof", dof, 7);
+    node->get_parameter_or("dof", dof, 6);
     std::string robot_type;
     node->get_parameter_or("robot_type", robot_type, std::string("xarm"));
     std::string group_name = robot_type;
@@ -32,7 +32,8 @@ int main(int argc, char** argv)
         group_name = robot_type + std::to_string(dof);
     std::string prefix;
     node->get_parameter_or("prefix", prefix, std::string(""));
-    if (prefix != "") {
+    if (prefix != "")
+    {
         group_name = prefix + group_name;
     }
 
@@ -42,39 +43,39 @@ int main(int argc, char** argv)
 
     geometry_msgs::msg::Pose target_pose1;
     target_pose1.position.x = 0.3;
-	target_pose1.position.y = -0.1;
-	target_pose1.position.z = 0.2;
-	target_pose1.orientation.x = 1;
-	target_pose1.orientation.y = 0;
-	target_pose1.orientation.z = 0;
-	target_pose1.orientation.w = 0;
+    target_pose1.position.y = -0.1;
+    target_pose1.position.z = 0.2;
+    target_pose1.orientation.x = 1;
+    target_pose1.orientation.y = 0;
+    target_pose1.orientation.z = 0;
+    target_pose1.orientation.w = 0;
 
     geometry_msgs::msg::Pose target_pose2;
     target_pose2.position.x = 0.3;
-	target_pose2.position.y = 0.1;
-	target_pose2.position.z = 0.2;
-	target_pose2.orientation.x = 1;
-	target_pose2.orientation.y = 0;
-	target_pose2.orientation.z = 0;
-	target_pose2.orientation.w = 0;
+    target_pose2.position.y = 0.1;
+    target_pose2.position.z = 0.2;
+    target_pose2.orientation.x = 1;
+    target_pose2.orientation.y = 0;
+    target_pose2.orientation.z = 0;
+    target_pose2.orientation.w = 0;
 
     geometry_msgs::msg::Pose target_pose3;
     target_pose3.position.x = 0.3;
-	target_pose3.position.y = 0.1;
-	target_pose3.position.z = 0.4;
-	target_pose3.orientation.x = 1;
-	target_pose3.orientation.y = 0;
-	target_pose3.orientation.z = 0;
-	target_pose3.orientation.w = 0;
+    target_pose3.position.y = 0.1;
+    target_pose3.position.z = 0.4;
+    target_pose3.orientation.x = 1;
+    target_pose3.orientation.y = 0;
+    target_pose3.orientation.z = 0;
+    target_pose3.orientation.w = 0;
 
     geometry_msgs::msg::Pose target_pose4;
     target_pose4.position.x = 0.3;
-	target_pose4.position.y = -0.1;
-	target_pose4.position.z = 0.4;
-	target_pose4.orientation.x = 1;
-	target_pose4.orientation.y = 0;
-	target_pose4.orientation.z = 0;
-	target_pose4.orientation.w = 0;
+    target_pose4.position.y = -0.1;
+    target_pose4.position.z = 0.4;
+    target_pose4.orientation.x = 1;
+    target_pose4.orientation.y = 0;
+    target_pose4.orientation.z = 0;
+    target_pose4.orientation.w = 0;
 
     while (rclcpp::ok())
     {
@@ -86,7 +87,7 @@ int main(int argc, char** argv)
 
         planner.planPoseTarget(target_pose3);
         planner.executePath();
-        
+
         planner.planPoseTarget(target_pose4);
         planner.executePath();
     }
