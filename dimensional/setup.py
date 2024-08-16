@@ -11,6 +11,7 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', ['launch/planning.launch.py']),
+        ('share/' + package_name + '/launch', ['launch/moveit_converter.launch.py']),
         ('share/' + package_name + '/config', ['config/planning_config.yaml']),
         # ('share/' + package_name + '/config/xarm6', ['config/xarm6/fake_controllers.yaml']),
         # ('share/' + package_name + '/srdf', ['srdf/xarm.srdf.xacro']),
