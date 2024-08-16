@@ -60,7 +60,8 @@ def launch_setup(context, *args, **kwargs):
         robot_type=robot_type.perform(context)
     )
 
-    moveit_config = (MoveItConfigsBuilder(
+    moveit_config = (
+        MoveItConfigsBuilder(
         context=context,
         controllers_name=controllers_name,
         dof=dof,
@@ -96,8 +97,10 @@ def launch_setup(context, *args, **kwargs):
         geometry_mesh_origin_rpy=geometry_mesh_origin_rpy,
         geometry_mesh_tcp_xyz=geometry_mesh_tcp_xyz,
         geometry_mesh_tcp_rpy=geometry_mesh_tcp_rpy,
-    ).planning_pipelines(pipelines=["ompl"])
-    .to_moveit_configs())
+        planning_pipelines='ompl',
+        ).planning_pipelines(pipelines=["ompl"])
+        .to_moveit_configs()
+    )
 
     moveit_converter_node = Node(
         package='dim_cpp',
