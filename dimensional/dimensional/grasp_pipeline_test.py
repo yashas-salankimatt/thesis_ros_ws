@@ -21,6 +21,8 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
 # from moveit.core.robot_state import RobotState
 # from moveit.planning import MoveItPy, MultiPipelinePlanRequestParameters
 import time
+import tf2_ros
+import tf2_geometry_msgs
 
 def show_mask(mask, ax, random_color=False, borders = True):
     if random_color:
@@ -219,7 +221,7 @@ class GraspPipelineTest(Node):
         # Publish the object point cloud
         self.publish_object_pointcloud(object_points)
 
-        target_text = "box."
+        target_text = "cardboard box."
         target_inputs = self.processor(images=img, text=target_text, return_tensors="pt")
         with torch.no_grad():
             target_outputs = self.model(**target_inputs)
@@ -369,36 +371,22 @@ class GraspPipelineTest(Node):
         pose.pose.orientation.z = 0.0
         pose.pose.orientation.w = 1.0
 
-        return pose
+        # Get the transform from the object frame to the 'link_base' frame
+        transform = self.tf_buffer.lookup_transform(
+            'link_base',
+            self.point_cloud.header.frame_id,
+            rclpy.time.Time())
 
-    def move_to_grasp_pose(self, grasp_pose):
-        # # Transform grasp pose to planning frame if necessary
-        # planning_frame = self.move_group.get_planning_frame()
-        # if grasp_pose.header.frame_id != planning_frame:
-        #     try:
-        #         transform = self.tf_buffer.lookup_transform(
-        #             planning_frame,
-        #             grasp_pose.header.frame_id,
-        #             rclpy.time.Time())
-        #         grasp_pose_transformed = tf2_geometry_msgs.do_transform_pose(grasp_pose, transform)
-        #     except (tf2_ros.LookupException, tf2_ros.ConnectivityException, tf2_ros.ExtrapolationException) as e:
-        #         self.get_logger().error(f'TF transform failed: {str(e)}')
-        #         return
+        # Transform the pose to the 'link_base' frame
+        transformed_pose = tf2_geometry_msgs.do_transform_pose(pose.pose, transform)
 
-        # # Set the goal pose
-        # self.move_group.set_pose_target(grasp_pose_transformed)
+        # Extract Pose from PoseStamped
+        posepubstamped = PoseStamped()
+        posepubstamped.header.frame_id = 'link_base'
+        posepubstamped.header.stamp = self.get_clock().now().to_msg()
+        posepubstamped.pose = transformed_pose
 
-        # # Plan and execute
-        # success, plan, planning_time, error_code = self.move_group.plan()
-        # if success:
-        #     self.get_logger().info("Planned path to grasp pose successfully!")
-        #     self.move_group.execute(plan, wait=True)
-        #     self.get_logger().info("Executed plan to grasp pose.")
-        # else:
-        #     self.get_logger().error(f"Path planning failed with error code: {error_code}")
-        pass
-
-
+        return posepubstamped
 
 def main(args=None):
     print("Starting grasp pipeline test node...")
