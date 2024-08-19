@@ -379,8 +379,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 0.5839311480522156
-        Min Value: -0.04536855220794678
+        Max Value: 0.26255589723587036
+        Min Value: -0.6225796341896057
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -406,7 +406,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /target_pointcloud
+        Value: /camera/point_cloud
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -432,10 +432,10 @@ Visualization Manager:
       Value: true
     - Class: rviz_default_plugins/Axes
       Enabled: true
-      Length: 1
+      Length: 0.10000000149011612
       Name: Axes
       Radius: 0.10000000149011612
-      Reference Frame: link6
+      Reference Frame: link_base
       Value: true
   Enabled: true
   Global Options:
@@ -483,7 +483,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.6120822429656982
+      Distance: 2.8255155086517334
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -498,10 +498,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.890396237373352
+      Pitch: 0.4703963100910187
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 3.345395088195801
+      Yaw: 2.460390090942383
     Saved: ~
 Window Geometry:
   Displays:
