@@ -28,6 +28,7 @@ setup(
             'sim_cam_tf_pub = dimensional.sim_cam_tf_pub:main',
             'grasp_pipeline_test = dimensional.grasp_pipeline_test:main',
             'pose_publisher = dimensional.pose_publisher:main',
+            'pose_pub_test = dimensional.pose_pub_test:main',
         ],
     },
 )

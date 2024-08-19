@@ -24,12 +24,12 @@ class PosePublisher(Node):
 
         # Home pose
         self.home_pose_ = Pose()
-        self.home_pose_.position.x = -0.064
-        self.home_pose_.position.y = 0.518
-        self.home_pose_.position.z = 0.373
-        self.home_pose_.orientation.x = 0.910
+        self.home_pose_.position.x = 0.0
+        self.home_pose_.position.y = 0.0
+        self.home_pose_.position.z = 0.65
+        self.home_pose_.orientation.x = 0.952
         self.home_pose_.orientation.y = 0.0
-        self.home_pose_.orientation.z = 0.414
+        self.home_pose_.orientation.z = 0.307
         self.home_pose_.orientation.w = 0.0
 
         self.grasp_pose_ = None
@@ -53,20 +53,20 @@ class PosePublisher(Node):
             self.called = True
             self.get_logger().info('Executing grasp and target poses.')
 
-            # Execute to home pose
+            # # Execute to home pose
             self.execute_pose(self.home_pose_, default_orientation=False)
             self.publish_gripper_position(0.0)
-            time.sleep(5)
+            time.sleep(10)
 
             # Execute to grasp pose
             self.execute_pose(self.grasp_pose_)
+            time.sleep(10)
             self.publish_gripper_position(0.1)
-            time.sleep(5)
 
             # Execute to target pose
             self.execute_pose(self.target_pose_)
+            time.sleep(10)
             self.publish_gripper_position(0.0)
-            time.sleep(5)
 
             # Clear the poses after execution
             self.grasp_pose_ = None
@@ -78,24 +78,16 @@ class PosePublisher(Node):
             if not hasattr(pose_stamped, 'header'):
                 posepub = pose_stamped
             else:
-                # Transform the pose to 'link_base' frame
-                transform = self.tf_buffer.lookup_transform(
-                    'link_base',
-                    pose_stamped.header.frame_id,
-                    rclpy.time.Time())  # time
-                
-                # Extract Pose from PoseStamped
+                if pose_stamped.header.frame_id != 'link_base':
+                    self.get_logger().error(f'Pose not in link_base frame')
                 posepub = pose_stamped.pose
-
-                transformed_pose = tf2_geometry_msgs.do_transform_pose(posepub, transform)
 
                 if default_orientation:
                     # Extract Pose from PoseStamped
-                    posepub = transformed_pose
-                    posepub.orientation.x = 0.0
+                    posepub.orientation.x = 1.0
                     posepub.orientation.y = 0.0
                     posepub.orientation.z = 0.0
-                    posepub.orientation.w = 1.0
+                    posepub.orientation.w = 0.0
 
                 posepub.position.z += 0.2
 
