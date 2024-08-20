@@ -67,6 +67,47 @@ def show_masks(image, masks, scores, point_coords=None, box_coords=None, input_l
         plt.axis('off')
         plt.show()
 
+def erode_masks(masks, kernel_size=[5,5], iterations=3):
+    """Erode masks using a kernel of the given size and number of iterations."""
+    kernel = np.ones((kernel_size[0], kernel_size[1]), np.uint8)  # You can adjust the kernel size to control the amount of shrinking
+    if len(masks.shape) == 3:  # Multiple masks
+        eroded_masks = []
+        for mask in masks:
+            eroded_mask = cv2.erode(mask.astype(np.uint8), kernel, iterations=iterations)
+            eroded_masks.append(eroded_mask)
+        eroded_masks = np.stack(eroded_masks, axis=0)
+    elif len(masks.shape) == 2:  # Single mask
+        eroded_masks = cv2.erode(masks.astype(np.uint8), kernel, iterations=iterations)
+    else:
+        raise ValueError("Unexpected mask shape: {}".format(masks.shape))
+    return eroded_masks
+
+def get_mask_dimensions(mask):
+    """
+    Finds the min and max x, y coordinates of the non-zero values in the mask
+    and calculates the width and height of the bounding box.
+    
+    Parameters:
+    - mask (numpy.ndarray): A 2D array (e.g., 800x1200) representing the binary mask.
+    
+    Returns:
+    - min_x, min_y, max_x, max_y: The coordinates of the bounding box around the non-zero mask area.
+    - width (int): The width of the bounding box.
+    - height (int): The height of the bounding box.
+    """
+    # Find the coordinates of all non-zero points in the mask
+    y_indices, x_indices = np.nonzero(mask)
+    
+    # Calculate the bounding box around the non-zero points
+    min_x, max_x = np.min(x_indices), np.max(x_indices)
+    min_y, max_y = np.min(y_indices), np.max(y_indices)
+    
+    # Calculate the width and height of the bounding box
+    width = max_x - min_x + 1  # +1 to include the boundary
+    height = max_y - min_y + 1  # +1 to include the boundary
+    
+    return min_x, min_y, max_x, max_y, width, height
+
 def plan_and_execute(
     robot,
     planning_component,
@@ -213,7 +254,10 @@ class GraspPipelineTest(Node):
             box=input_box[None, :],
             multimask_output=False,
         )
-        # show_masks(img, masks, scores, box_coords=input_box)
+        min_x, min_y, max_x, max_y, width, height = get_mask_dimensions(masks[0])
+        print(f"Mask dimensions: {width}x{height}")
+        masks = erode_masks(masks, kernel_size=[int(width/10),int(height/10)], iterations=1)
+
 
         # Get the intersection between point cloud and object mask
         object_points = self.get_object_points(masks[0], self.point_cloud)
@@ -256,7 +300,9 @@ class GraspPipelineTest(Node):
             box=input_box[None, :],
             multimask_output=False,
         )
-        # show_masks(img, masks, scores, box_coords=input_box)
+        min_x, min_y, max_x, max_y, width, height = get_mask_dimensions(masks[0])
+        print(f"Mask dimensions: {width}x{height}")
+        masks = erode_masks(masks, kernel_size=[int(width/10),int(height/10)], iterations=1)
 
         # Get the intersection between point cloud and object mask
         print("Getting target points...")
