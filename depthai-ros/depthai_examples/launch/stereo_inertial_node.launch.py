@@ -26,11 +26,11 @@ def generate_launch_description():
     usb2Mode     = LaunchConfiguration('usb2Mode',  default = False)
     poeMode      = LaunchConfiguration('poeMode',   default = False)
 
-    camera_model = LaunchConfiguration('camera_model',  default = 'OAK-D')
+    camera_model = LaunchConfiguration('camera_model',  default = 'OAK-D-PRO')
     tf_prefix    = LaunchConfiguration('tf_prefix',     default = 'oak')
     mode         = LaunchConfiguration('mode', default = 'depth')
     base_frame   = LaunchConfiguration('base_frame',    default = 'oak-d_frame')
-    parent_frame = LaunchConfiguration('parent_frame',  default = 'oak-d-base-frame')
+    parent_frame = LaunchConfiguration('parent_frame',  default = 'camera_frame')
     imuMode      = LaunchConfiguration('imuMode', default = '1')
 
     cam_pos_x    = LaunchConfiguration('cam_pos_x',     default = '0.0')
@@ -308,19 +308,19 @@ def generate_launch_description():
     
 
 
-    urdf_launch = IncludeLaunchDescription(
-                            launch_description_sources.PythonLaunchDescriptionSource(
-                                    os.path.join(urdf_launch_dir, 'urdf_launch.py')),
-                            launch_arguments={'tf_prefix'   : tf_prefix,
-                                              'camera_model': camera_model,
-                                              'base_frame'  : base_frame,
-                                              'parent_frame': parent_frame,
-                                              'cam_pos_x'   : cam_pos_x,
-                                              'cam_pos_y'   : cam_pos_y,
-                                              'cam_pos_z'   : cam_pos_z,
-                                              'cam_roll'    : cam_roll,
-                                              'cam_pitch'   : cam_pitch,
-                                              'cam_yaw'     : cam_yaw}.items())
+    # urdf_launch = IncludeLaunchDescription(
+    #                         launch_description_sources.PythonLaunchDescriptionSource(
+    #                                 os.path.join(urdf_launch_dir, 'urdf_launch.py')),
+    #                         launch_arguments={'tf_prefix'   : tf_prefix,
+    #                                           'camera_model': camera_model,
+    #                                           'base_frame'  : base_frame,
+    #                                           'parent_frame': parent_frame,
+    #                                           'cam_pos_x'   : cam_pos_x,
+    #                                           'cam_pos_y'   : cam_pos_y,
+    #                                           'cam_pos_z'   : cam_pos_z,
+    #                                           'cam_roll'    : cam_roll,
+    #                                           'cam_pitch'   : cam_pitch,
+    #                                           'cam_yaw'     : cam_yaw}.items())
 
 
     stereo_node = launch_ros.actions.Node(
@@ -489,7 +489,7 @@ def generate_launch_description():
 
     ld.add_action(declare_enableRviz_cmd)
 
-    ld.add_action(urdf_launch)
+    # ld.add_action(urdf_launch)
     ld.add_action(stereo_node)
 
     if LaunchConfigurationEquals('depth_aligned', 'True') and LaunchConfigurationEquals('rectify', 'True'):
