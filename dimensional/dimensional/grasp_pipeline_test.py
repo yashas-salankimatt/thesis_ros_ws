@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import requests
 import torch
 from sensor_msgs.msg import Image, PointCloud2, PointField
 from sensor_msgs_py import point_cloud2
@@ -14,14 +13,9 @@ import matplotlib.pyplot as plt
 from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from geometry_msgs.msg import PoseStamped
-# from moveit_msgs.msg import MoveItErrorCodes
-# from moveit_configs_utils import MoveItConfigsBuilder, MoveItConfigs
 from tf2_ros import TransformListener, Buffer
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
-# from moveit.core.robot_state import RobotState
-# from moveit.planning import MoveItPy, MultiPipelinePlanRequestParameters
 import time
-import tf2_ros
 import tf2_geometry_msgs
 
 def show_mask(mask, ax, random_color=False, borders = True):
@@ -108,38 +102,6 @@ def get_mask_dimensions(mask):
     
     return min_x, min_y, max_x, max_y, width, height
 
-def plan_and_execute(
-    robot,
-    planning_component,
-    logger,
-    single_plan_parameters=None,
-    multi_plan_parameters=None,
-    sleep_time=0.0,
-):
-    """Helper function to plan and execute a motion."""
-    # plan to goal
-    logger.info("Planning trajectory")
-    if multi_plan_parameters is not None:
-        plan_result = planning_component.plan(
-            multi_plan_parameters=multi_plan_parameters
-        )
-    elif single_plan_parameters is not None:
-        plan_result = planning_component.plan(
-            single_plan_parameters=single_plan_parameters
-        )
-    else:
-        plan_result = planning_component.plan()
-
-    # execute the plan
-    if plan_result:
-        logger.info("Executing plan")
-        robot_trajectory = plan_result.trajectory
-        robot.execute(robot_trajectory, controllers=[])
-    else:
-        logger.error("Planning failed")
-
-    time.sleep(sleep_time)
-
 class GraspPipelineTest(Node):
     def __init__(self):
         super().__init__('grasp_pipeline_test')
@@ -148,7 +110,7 @@ class GraspPipelineTest(Node):
         # Load the model
         model_id = "IDEA-Research/grounding-dino-tiny"
         self.processor = AutoProcessor.from_pretrained(model_id)
-        self.model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id)
+        self.model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id).to(device="cuda")
 
         self.called = False
         self.point_cloud_saved = False
@@ -194,7 +156,6 @@ class GraspPipelineTest(Node):
             self.grasp_pose_pub.publish(self.grasp_pose)
             print("Published grasp pose")
         if self.target_pose_pub:
-            print("Target pose")
             self.target_pose.header.stamp = transform.header.stamp
             self.target_pose_publisher.publish(self.target_pose)
             print("Published target pose")
@@ -208,10 +169,10 @@ class GraspPipelineTest(Node):
         img = PILImage.frombytes("RGB", (image.width, image.height), bytes(image.data), "raw")
         # visualize the image
         # img.show()
-        text = "a coffee mug."
+        text = "green block."
 
         # Perform object detection
-        inputs = self.processor(images=img, text=text, return_tensors="pt")
+        inputs = self.processor(images=img, text=text, return_tensors="pt").to(device="cuda")
         with torch.no_grad():
             outputs = self.model(**inputs)
 
@@ -244,7 +205,7 @@ class GraspPipelineTest(Node):
         # sam2_checkpoint = "/home/yashas/Documents/thesis/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
         sam2_checkpoint = "/home/ros/deps/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
         model_cfg = "sam2_hiera_t.yaml"
-        sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cpu")
+        sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cuda")
         predictor = SAM2ImagePredictor(sam2_model)
         predictor.set_image(img)
         input_box = np.array([x_min, y_min, x_max, y_max])
@@ -266,7 +227,7 @@ class GraspPipelineTest(Node):
         self.publish_object_pointcloud(object_points)
 
         target_text = "cardboard box."
-        target_inputs = self.processor(images=img, text=target_text, return_tensors="pt")
+        target_inputs = self.processor(images=img, text=target_text, return_tensors="pt").to(device="cuda")
         with torch.no_grad():
             target_outputs = self.model(**target_inputs)
 
@@ -355,8 +316,6 @@ class GraspPipelineTest(Node):
         self.object_points = points_in_object
         print(f"Removed {count} object points.")
 
-        # Filter out any invalid points (e.g., with z=0 or NaN)
-
         # return points_in_object
         return points_in_object
 
@@ -394,7 +353,8 @@ class GraspPipelineTest(Node):
             centroid[1] += object_points[i]['y']
             centroid[2] += object_points[i]['z']
             count += 1
-        centroid = np.array(centroid) / len(object_points)
+        # centroid = np.array(centroid) / len(object_points)
+        centroid = np.array(centroid) / count
 
         self.get_logger().info(f"Object centroid: {centroid}")
         self.get_logger().info(f"Object min dim: {min_dim}")

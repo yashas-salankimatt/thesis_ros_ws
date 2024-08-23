@@ -25,6 +25,9 @@ find_package(Eigen3 REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(xarm_msgs REQUIRED)
 find_package(xarm_planner REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_sensor_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
@@ -48,6 +51,7 @@ if(BUILD_TESTING)
 endif()
 
 add_executable(moveit_converter src/moveit_converter.cpp)
+add_executable(point_cloud_transformer src/point_cloud_transformer.cpp)
 target_include_directories(moveit_converter PUBLIC
   ${xarm_planner_INCLUDE_DIRS}
 )
@@ -64,6 +68,15 @@ target_link_libraries(moveit_converter
   ${moveit_msgs_LIBRARIES}
   Eigen3::Eigen
 )
+
+ament_target_dependencies(point_cloud_transformer
+  rclcpp
+  tf2_ros
+  tf2_sensor_msgs
+  sensor_msgs
+  Eigen3
+)
+
 ament_target_dependencies(moveit_converter
   rclcpp
   moveit_core
@@ -82,6 +95,7 @@ ament_target_dependencies(moveit_converter
 
 install(TARGETS
   moveit_converter
+  point_cloud_transformer
   DESTINATION lib/${PROJECT_NAME})
 
 # Install the launch files, if any

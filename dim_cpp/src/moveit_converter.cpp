@@ -45,6 +45,7 @@ private:
         if (is_executing_)
         {
             RCLCPP_WARN(this->get_logger(), "Robot is already executing a trajectory.");
+            publishStatus(1); // Robot is busy
             return;
         }
 

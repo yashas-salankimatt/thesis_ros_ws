@@ -2,18 +2,23 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Pose, PoseStamped
 from std_msgs.msg import Float32
+from sensor_msgs.msg import Image, PointCloud2
 import time
 import threading
 import tf2_ros
 import tf2_geometry_msgs
+from object_processor import ObjectProcessor
 
 class PosePublisher(Node):
     def __init__(self):
         super().__init__('pose_publisher')
 
-        # Subscribers
-        self.grasp_pose_sub = self.create_subscription(PoseStamped, '/grasp_pose', self.grasp_pose_callback, 10)
-        self.target_pose_sub = self.create_subscription(PoseStamped, '/target_pose', self.target_pose_callback, 10)
+        self.image_received = False
+        self.point_cloud_received = False
+
+        # Subscribe to image topic
+        self.create_subscription(Image, '/camera/rgb/image_raw', self.image_callback, 10)
+        self.create_subscription(PointCloud2, '/camera/point_cloud', self.point_cloud_callback, 10)
 
         # Publishers
         self.publisher_ = self.create_publisher(Pose, '/curr_target_pose', 10)
@@ -38,15 +43,20 @@ class PosePublisher(Node):
         self.lock_ = threading.Lock()
         self.called = False
 
-    def grasp_pose_callback(self, msg):
-        with self.lock_:
-            self.grasp_pose_ = msg
-            self.try_execute()
+    def image_callback(self, image):
+        if (not self.image_received):
+            self.image = image
+            self.image_received = True
 
-    def target_pose_callback(self, msg):
-        with self.lock_:
-            self.target_pose_ = msg
-            self.try_execute()
+    def point_cloud_callback(self, point_cloud):
+        if (not self.point_cloud_received):
+            self.point_cloud = point_cloud
+            self.point_cloud_received = True
+
+    def try_object_processing(self):
+        if self.image_received and self.point_cloud_received:
+            self.get_logger().info('Processing object.')
+            self.grasp_object = ObjectProcessor(self.image, "a coffee mug.", self.point_cloud)
 
     def try_execute(self):
         if self.grasp_pose_ is not None and self.target_pose_ is not None and not self.called:
@@ -59,30 +69,12 @@ class PosePublisher(Node):
             time.sleep(10)
 
             # Execute to grasp pose
-            print("1")
-            pose = self.grasp_pose_
-            pose.pose.position.z += 0.3
-            self.execute_pose(pose)
-            time.sleep(10)
-
-            print("2")
-            pose2 = self.grasp_pose_
-            pose2.pose.position.z -= 0.15
-            self.execute_pose(pose2)
+            self.execute_pose(self.grasp_pose_)
             time.sleep(10)
             self.publish_gripper_position(0.1)
 
-            print("3")
-            pose = self.grasp_pose_
-            pose.pose.position.z = self.target_pose_.pose.position.z + 0.3
-            self.execute_pose(pose)
-            time.sleep(10)
-
             # Execute to target pose
-            print("Target")
-            pose = self.target_pose_
-            pose.pose.position.z += 0.3
-            self.execute_pose(pose)
+            self.execute_pose(self.target_pose_)
             time.sleep(10)
             self.publish_gripper_position(0.0)
 
@@ -106,6 +98,9 @@ class PosePublisher(Node):
                     posepub.orientation.y = 0.0
                     posepub.orientation.z = 0.0
                     posepub.orientation.w = 0.0
+
+                posepub.position.z += 0.2
+
 
             self.publisher_.publish(posepub)
             self.get_logger().info(f'\nExecuting pose in link_base frame: {posepub}')
