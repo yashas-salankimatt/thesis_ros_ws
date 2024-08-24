@@ -14,7 +14,7 @@ from sam2.build_sam import build_sam2
 from sam2.sam2_image_predictor import SAM2ImagePredictor
 from geometry_msgs.msg import PoseStamped
 from tf2_ros import TransformListener, Buffer
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
+from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, QoSReliabilityPolicy, QoSHistoryPolicy
 import time
 import tf2_geometry_msgs
 
@@ -120,10 +120,17 @@ class GraspPipelineTest(Node):
         self.target_pose_pub = False
 
         # Subscribe to the RGB image topic
-        self.create_subscription(Image, '/camera/rgb/image_raw', self.image_callback, 10)
+        # self.create_subscription(Image, '/camera/rgb/image_raw', self.image_callback, 10)
+        self.create_subscription(Image, '/color/image', self.image_callback, 10)
 
+        qos_profile = QoSProfile(
+            reliability=QoSReliabilityPolicy.BEST_EFFORT,
+            history=QoSHistoryPolicy.KEEP_LAST,
+            depth=10
+        )
         # Subscribe to the point cloud topic
-        self.create_subscription(PointCloud2, '/camera/point_cloud', self.point_cloud_callback, 10)
+        # self.create_subscription(PointCloud2, '/camera/point_cloud', self.point_cloud_callback, 10)
+        self.create_subscription(PointCloud2, '/stereo/points', self.point_cloud_callback, qos_profile)
 
         # Add new publishers and subscribers
         self.pointcloud_pub = self.create_publisher(PointCloud2, '/object_pointcloud', 10)
@@ -169,7 +176,7 @@ class GraspPipelineTest(Node):
         img = PILImage.frombytes("RGB", (image.width, image.height), bytes(image.data), "raw")
         # visualize the image
         # img.show()
-        text = "green block."
+        text = "can."
 
         # Perform object detection
         inputs = self.processor(images=img, text=text, return_tensors="pt").to(device="cuda")
@@ -292,39 +299,56 @@ class GraspPipelineTest(Node):
 
     def get_object_points(self, mask, point_cloud):
         print("Getting object points...")
+    
         # Convert PointCloud2 to numpy array
         pc = point_cloud2.read_points(point_cloud, skip_nans=True)
         points = np.array(list(pc))
-        # points_in_object = np.zeros((1280,800,3), dtype=np.float32)
-        points_in_object = np.copy(points)
-        print(points.shape)
-        print(points[:5])
 
-        print("mask shape")
-        print(mask.shape)
+        points_in_object = []
 
-        count = 0
-        for i in range(mask.shape[1]):
-            for j in range(mask.shape[0]):
-                if mask[j][i] == 0:
-                    points_in_object[j * mask.shape[1] + i]['x'] = 0.0
-                    points_in_object[j * mask.shape[1] + i]['y'] = 0.0
-                    points_in_object[j * mask.shape[1] + i]['z'] = 0.0
-                    count += 1
-        print(points_in_object.shape)
-        print(points_in_object[:5])
+        # Intrinsic matrix for the camera (3x3) matrix [fx, 0, cx; 0, fy, cy; 0, 0, 1]
+        # fx, fy = intrinsic_matrix[0, 0], intrinsic_matrix[1, 1]
+        # cx, cy = intrinsic_matrix[0, 2], intrinsic_matrix[1, 2]
+        fx, fy = 1024.122, 1024.122
+        cx, cy = 644.33, 367.452
+
+        for point in points:
+            # Project 3D point to 2D pixel coordinates
+            u = int(fx * point['x'] / point['z'] + cx)
+            v = int(fy * point['y'] / point['z'] + cy)
+            
+            # Check if the pixel is within mask boundaries
+            if 0 <= u < mask.shape[1] and 0 <= v < mask.shape[0]:
+                # Check if the pixel corresponds to a '1' in the segmentation mask
+                if mask[v, u] == 1:
+                    points_in_object.append(point)
+        
+        points_in_object = np.array(points_in_object)
+        
+        print(f"Original points: {len(points)}, Filtered points: {len(points_in_object)}")
+        
         self.object_points = points_in_object
-        print(f"Removed {count} object points.")
-
-        # return points_in_object
+        
         return points_in_object
 
     def publish_object_pointcloud(self, object_points):
-        self.object_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, object_points)
+        # self.object_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, object_points)
+        # Ensure object_points is in the format [(x, y, z), (x, y, z), ...]
+        xyz_points = [(point['x'], point['y'], point['z']) for point in object_points]
+
+        # Create the PointCloud2 message
+        self.object_cloud = point_cloud2.create_cloud_xyz32(self.point_cloud.header, xyz_points)
+
         self.object_pub = True
 
     def publish_target_pointcloud(self, target_points):
-        self.target_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, target_points)
+        # self.target_cloud = point_cloud2.create_cloud(self.point_cloud.header, self.point_cloud.fields, target_points)
+        # Ensure target_points is in the format [(x, y, z), (x, y, z), ...]
+        xyz_points = [(point['x'], point['y'], point['z']) for point in target_points]
+
+        # Create the PointCloud2 message
+        self.target_cloud = point_cloud2.create_cloud_xyz32(self.point_cloud.header, xyz_points)
+
         self.target_pub = True
 
     def calculate_grasp_pose(self, object_points):
@@ -364,12 +388,12 @@ class GraspPipelineTest(Node):
         pose = PoseStamped()
         pose.header.frame_id = self.point_cloud.header.frame_id
         pose.header.stamp = self.get_clock().now().to_msg()
-        # pose.pose.position.x = centroid[0]
-        # pose.pose.position.y = centroid[1]
-        # pose.pose.position.z = centroid[2]
-        pose.pose.position.x = (min_dim[0] + max_dim[0]) / 2
-        pose.pose.position.y = (min_dim[1] + max_dim[1]) / 2
-        pose.pose.position.z = (min_dim[2] + max_dim[2]) / 2
+        pose.pose.position.x = centroid[0]
+        pose.pose.position.y = centroid[1]
+        pose.pose.position.z = centroid[2]
+        # pose.pose.position.x = (min_dim[0] + max_dim[0]) / 2
+        # pose.pose.position.y = (min_dim[1] + max_dim[1]) / 2
+        # pose.pose.position.z = (min_dim[2] + max_dim[2]) / 2
         
         # Set orientation (this is a simple orientation, you might want to improve it)
         pose.pose.orientation.x = 0.0
