@@ -61,13 +61,13 @@ class PosePublisher(Node):
             # Execute to grasp pose
             print("1")
             pose = self.grasp_pose_
-            pose.pose.position.z += 0.3
+            pose.pose.position.z += 0.075
             self.execute_pose(pose)
             time.sleep(10)
 
             print("2")
             pose2 = self.grasp_pose_
-            pose2.pose.position.z -= 0.15
+            pose2.pose.position.z -= 0.075
             self.execute_pose(pose2)
             time.sleep(10)
             self.publish_gripper_position(0.1)
@@ -81,7 +81,7 @@ class PosePublisher(Node):
             # Execute to target pose
             print("Target")
             pose = self.target_pose_
-            pose.pose.position.z += 0.3
+            pose.pose.position.z += 0.2
             self.execute_pose(pose)
             time.sleep(10)
             self.publish_gripper_position(0.0)

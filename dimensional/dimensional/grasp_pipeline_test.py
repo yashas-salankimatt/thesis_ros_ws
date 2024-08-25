@@ -109,8 +109,9 @@ class GraspPipelineTest(Node):
 
         # Load the model
         model_id = "IDEA-Research/grounding-dino-tiny"
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.processor = AutoProcessor.from_pretrained(model_id)
-        self.model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id).to(device="cuda")
+        self.model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id).to(device=self.device)
 
         self.called = False
         self.point_cloud_saved = False
@@ -179,7 +180,7 @@ class GraspPipelineTest(Node):
         text = "can."
 
         # Perform object detection
-        inputs = self.processor(images=img, text=text, return_tensors="pt").to(device="cuda")
+        inputs = self.processor(images=img, text=text, return_tensors="pt").to(device=self.device)
         with torch.no_grad():
             outputs = self.model(**inputs)
 
@@ -212,7 +213,7 @@ class GraspPipelineTest(Node):
         # sam2_checkpoint = "/home/yashas/Documents/thesis/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
         sam2_checkpoint = "/home/ros/deps/segment-anything-2/checkpoints/sam2_hiera_tiny.pt"
         model_cfg = "sam2_hiera_t.yaml"
-        sam2_model = build_sam2(model_cfg, sam2_checkpoint, device="cuda")
+        sam2_model = build_sam2(model_cfg, sam2_checkpoint, device=self.device)
         predictor = SAM2ImagePredictor(sam2_model)
         predictor.set_image(img)
         input_box = np.array([x_min, y_min, x_max, y_max])
@@ -234,7 +235,7 @@ class GraspPipelineTest(Node):
         self.publish_object_pointcloud(object_points)
 
         target_text = "cardboard box."
-        target_inputs = self.processor(images=img, text=target_text, return_tensors="pt").to(device="cuda")
+        target_inputs = self.processor(images=img, text=target_text, return_tensors="pt").to(device=self.device)
         with torch.no_grad():
             target_outputs = self.model(**target_inputs)
 

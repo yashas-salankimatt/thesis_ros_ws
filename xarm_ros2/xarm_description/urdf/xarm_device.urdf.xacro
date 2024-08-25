@@ -72,9 +72,9 @@
 	<xacro:arg name="camera_model" default="OAK-D-PRO" />
 	<xacro:arg name="base_frame" default="oak-d_frame" />
 	<xacro:arg name="parent_frame" default="link6" />
-	<xacro:arg name="cam_pos_x" default="0.15" />
+	<xacro:arg name="cam_pos_x" default="0.0875" />
 	<xacro:arg name="cam_pos_y" default="0.0" />
-	<xacro:arg name="cam_pos_z" default="0.0" />
+	<xacro:arg name="cam_pos_z" default="0.02792" />
 	<xacro:arg name="cam_roll" default="3.141592653589793" />
 	<xacro:arg name="cam_pitch" default="-1.5707963267948966" />
 	<xacro:arg name="cam_yaw" default="0.0" />

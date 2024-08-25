@@ -80,6 +80,7 @@ private:
 
     void gripperCallback(const std_msgs::msg::Float32::SharedPtr msg)
     {
+        RCLCPP_WARN(this->get_logger(), "\nReceived new gripper position. Planning and executing...");
         if (is_executing_)
         {
             RCLCPP_WARN(this->get_logger(), "Robot is already executing a trajectory.");
@@ -90,8 +91,6 @@ private:
         is_executing_ = true;
         publishStatus(1); // Robot is busy
 
-        RCLCPP_INFO(this->get_logger(), "Received new gripper position. Planning and executing...");
-
         // bool success = planner_gripper_->planJointTarget({msg->data});
         std::vector<double> joint_open(6, 0.0);
         std::vector<double> joint_close(6, 0.85);
@@ -99,6 +98,10 @@ private:
         if (msg->data > 0.0)
         {
             joint_target = joint_close;
+        }
+        else
+        {
+            joint_target = joint_open;
         }
         bool planned = planner_gripper_->planJointTarget(joint_target);
         bool executed = planner_gripper_->executePath();
