@@ -24,7 +24,7 @@ from uf_ros_lib.uf_robot_utils import load_yaml, generate_ros2_control_params_te
 
 def launch_setup(context, *args, **kwargs):
     robot_ip = LaunchConfiguration('robot_ip', default='')
-    report_type = LaunchConfiguration('report_type', default='normal')
+    report_type = LaunchConfiguration('report_type', default='dev')
     baud_checkset = LaunchConfiguration('baud_checkset', default=True)
     default_gripper_baud = LaunchConfiguration('default_gripper_baud', default=2000000)
     
@@ -221,7 +221,7 @@ def launch_setup(context, *args, **kwargs):
             ),
             ComposableNode(
                 package='moveit_servo',
-                plugin='moveit_servo::ServoServer',
+                plugin='moveit_servo::ServoNode',
                 name='servo_server',
                 parameters=[
                     servo_params,
