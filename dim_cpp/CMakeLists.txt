@@ -25,6 +25,7 @@ find_package(Eigen3 REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(xarm_msgs REQUIRED)
 find_package(xarm_planner REQUIRED)
+find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_sensor_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
@@ -52,6 +53,7 @@ endif()
 
 add_executable(moveit_converter src/moveit_converter.cpp)
 add_executable(point_cloud_transformer src/point_cloud_transformer.cpp)
+add_executable(transform_publisher src/transform_publisher.cpp)
 target_include_directories(moveit_converter PUBLIC
   ${xarm_planner_INCLUDE_DIRS}
 )
@@ -93,9 +95,17 @@ ament_target_dependencies(moveit_converter
   moveit
 )
 
+ament_target_dependencies(transform_publisher
+  rclcpp
+  geometry_msgs
+  tf2
+  tf2_ros
+)
+
 install(TARGETS
   moveit_converter
   point_cloud_transformer
+  transform_publisher
   DESTINATION lib/${PROJECT_NAME})
 
 # Install the launch files, if any

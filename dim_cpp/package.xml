@@ -20,6 +20,8 @@
   <depend>moveit_msgs</depend>
   <depend>eigen3_cmake_module</depend>
   <depend>moveit_ros_move_group</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
 
   <depend>xarm_msgs</depend>
   <depend>xarm_planner</depend>
