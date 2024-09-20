@@ -54,16 +54,25 @@ int main(int argc, char *argv[])
     rclcpp::init(argc, argv);
 
     // Check if sufficient arguments are provided
+    std::string parent_frame;
+    std::string child_frame;
+    std::string topic_name;
+    if (argc == 4)
+    {
+        // Get arguments from the command line
+        parent_frame = argv[1];
+        child_frame = argv[2];
+        topic_name = argv[3];
+    }
     if (argc < 4)
     {
-        std::cerr << "Usage: transform_publisher <parent_frame> <child_frame> <topic_name>" << std::endl;
-        return 1;
+        // std::cerr << "Usage: transform_publisher <parent_frame> <child_frame> <topic_name>" << std::endl;
+        // return 1;
+        std::cout << "Using defaults: parent_frame: world, child_frame: link6, topic_name: /real_arm_tf" << std::endl;
+        parent_frame = "world";
+        child_frame = "link6";
+        topic_name = "/real_arm_tf";
     }
-
-    // Get arguments from the command line
-    std::string parent_frame = argv[1];
-    std::string child_frame = argv[2];
-    std::string topic_name = argv[3];
 
     auto node = std::make_shared<TransformPublisher>(parent_frame, child_frame, topic_name);
     rclcpp::spin(node);
