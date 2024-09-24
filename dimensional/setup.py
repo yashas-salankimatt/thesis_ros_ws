@@ -31,6 +31,7 @@ setup(
             'pose_publisher = dimensional.pose_publisher:main',
             'object_processor = dimensional.object_processor:main',
             'pose_pub_test = dimensional.pose_pub_test:main',
+            'gripper_action_client = dimensional.gripper_action_client:main',
         ],
     },
 )
