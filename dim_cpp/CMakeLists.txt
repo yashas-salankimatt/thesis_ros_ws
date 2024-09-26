@@ -29,11 +29,20 @@ find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_sensor_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(cv_bridge REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(PCL REQUIRED)
+find_package(pcl_conversions REQUIRED)
+find_package(pcl_ros REQUIRED)
 
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
-include_directories(${xarm_planner_INCLUDE_DIRS})
+include_directories(
+  ${xarm_planner_INCLUDE_DIRS}
+  ${PCL_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+)
 
 # message(WARNING "xarm_planner include dirs: ${xarm_planner_INCLUDE_DIRS}")
 # message(WARNING "xarm_planner libraries: ${xarm_planner_LIBRARIES}")
@@ -54,6 +63,7 @@ endif()
 add_executable(moveit_converter src/moveit_converter.cpp)
 add_executable(point_cloud_transformer src/point_cloud_transformer.cpp)
 add_executable(transform_publisher src/transform_publisher.cpp)
+add_executable(data_recorder src/data_recorder.cpp)
 target_include_directories(moveit_converter PUBLIC
   ${xarm_planner_INCLUDE_DIRS}
 )
@@ -102,10 +112,23 @@ ament_target_dependencies(transform_publisher
   tf2_ros
 )
 
+ament_target_dependencies(data_recorder
+  rclcpp
+  sensor_msgs
+  std_msgs
+  geometry_msgs
+  cv_bridge
+  OpenCV
+  PCL
+  pcl_conversions
+  pcl_ros
+)
+
 install(TARGETS
   moveit_converter
   point_cloud_transformer
   transform_publisher
+  data_recorder
   DESTINATION lib/${PROJECT_NAME})
 
 # Install the launch files, if any

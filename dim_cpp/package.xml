@@ -28,6 +28,14 @@
   <depend>xarm_description</depend>
   <depend>xarm_moveit_config</depend>
 
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>OpenCV</depend>
+  <depend>PCL</depend>
+  <depend>pcl_conversions</depend>
+  <depend>pcl_ros</depend>
+  <depend>libpcap-dev</depend>
+
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
   <exec_depend>uf_ros_lib</exec_depend>
