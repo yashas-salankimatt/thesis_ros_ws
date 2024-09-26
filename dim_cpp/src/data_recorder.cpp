@@ -232,7 +232,7 @@ private:
                 cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_16UC1);
 
                 // Save the original 16-bit depth image (preserve data integrity)
-                std::string depth_filename = recording_dir_ + "/" + topic_name + "." + timestamp;
+                std::string depth_filename = recording_dir_ + "/" + topic_name + "." + timestamp + ".png";
                 cv::imwrite(depth_filename, cv_ptr->image); // Save the 16-bit depth image
 
                 // Optionally: Save a scaled 8-bit version of the depth image for visualization
