@@ -128,11 +128,11 @@ private:
 
             if (last_image_1_)
             {
-                saveImage(last_image_1_, "image_topic_1", stamp);
+                saveImage(last_image_1_, "image", stamp);
             }
             if (last_image_2_)
             {
-                saveImage(last_image_2_, "image_topic_2", stamp);
+                saveImage(last_image_2_, "depth", stamp);
             }
             // if (last_pointcloud_)
             //     savePointCloud(last_pointcloud_);
@@ -232,7 +232,7 @@ private:
                 cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::TYPE_16UC1);
 
                 // Save the original 16-bit depth image (preserve data integrity)
-                std::string depth_filename = recording_dir_ + "/" + topic_name + "_" + timestamp + "_depth_original.png";
+                std::string depth_filename = recording_dir_ + "/" + topic_name + "." + timestamp;
                 cv::imwrite(depth_filename, cv_ptr->image); // Save the 16-bit depth image
 
                 // Optionally: Save a scaled 8-bit version of the depth image for visualization
@@ -251,7 +251,7 @@ private:
             // Save the image (for both BGR8 and MONO8)
             if (!depth_image)
             {
-                std::string filename = recording_dir_ + "/" + topic_name + "_" + timestamp + ".png";
+                std::string filename = recording_dir_ + "/" + topic_name + "." + timestamp + ".png";
                 cv::imwrite(filename, cv_ptr->image);
             }
             cv_ptr.reset(); // Free image memory after saving
@@ -275,22 +275,22 @@ private:
     // Helper function to save transform data as text
     void saveTransform(const geometry_msgs::msg::TransformStamped::SharedPtr msg, std::string timestamp)
     {
-        std::string filename = recording_dir_ + "/transform_" + timestamp + ".txt";
+        std::string filename = recording_dir_ + "/real_arm_tf." + timestamp + ".txt";
         std::ofstream file(filename);
-        file << "Translation X: " << msg->transform.translation.x << "\n";
-        file << "Translation Y: " << msg->transform.translation.y << "\n";
-        file << "Translation Z: " << msg->transform.translation.z << "\n";
-        file << "Rotation X: " << msg->transform.rotation.x << "\n";
-        file << "Rotation Y: " << msg->transform.rotation.y << "\n";
-        file << "Rotation Z: " << msg->transform.rotation.z << "\n";
-        file << "Rotation W: " << msg->transform.rotation.w << "\n";
+        file << msg->transform.translation.x << "\n";
+        file << msg->transform.translation.y << "\n";
+        file << msg->transform.translation.z << "\n";
+        file << msg->transform.rotation.x << "\n";
+        file << msg->transform.rotation.y << "\n";
+        file << msg->transform.rotation.z << "\n";
+        file << msg->transform.rotation.w << "\n";
         file.close(); // Free file resources
     }
 
     // Helper function to save float data as text
     void saveFloat(const std_msgs::msg::Float32::SharedPtr msg, std::string timestamp)
     {
-        std::string filename = recording_dir_ + "/float_" + timestamp + ".txt";
+        std::string filename = recording_dir_ + "/gripper_position." + timestamp + ".txt";
         std::ofstream file(filename);
         file << msg->data << "\n";
         file.close(); // Free file resources
