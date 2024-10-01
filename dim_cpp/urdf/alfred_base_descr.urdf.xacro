@@ -21,7 +21,7 @@
 	<!-- load xarm6 device -->
 	<xacro:include filename="$(find xarm_description)/urdf/xarm_device_macro.xacro" />
 
-	<xacro:xarm_device prefix="left" hw_ns="xarm" limited="false" 
+	<xacro:xarm_device prefix="right_" hw_ns="xarm" limited="false" 
 		effort_control="false" velocity_control="false"
 		add_gripper="true" add_vacuum_gripper="false" 
 		add_bio_gripper="false" dof="6" 
@@ -38,10 +38,10 @@
 		geometry_mesh_tcp_xyz="0 0 0" geometry_mesh_tcp_rpy="0 0 0"
 		robot_ip="192.168.1.210" report_type="dev"
 		baud_checkset="true" default_gripper_baud="2000000"
-		model1300="false" attach_to="left_arm_mount" attach_xyz="0 0 0" attach_rpy="0 0 0"
+		model1300="false" attach_to="right_arm_mount" attach_xyz="0 0 0" attach_rpy="0 0 0"
 		robot_sn="" use_gazebo_camera="false" mesh_suffix="stl" kinematics_suffix="" />
 
-	<xacro:xarm_device prefix="right" hw_ns="xarm" limited="false" 
+	<xacro:xarm_device prefix="left_" hw_ns="xarm" limited="false" 
 		effort_control="false" velocity_control="false"
 		add_gripper="true" add_vacuum_gripper="false" 
 		add_bio_gripper="false" dof="7" 
@@ -58,6 +58,6 @@
 		geometry_mesh_tcp_xyz="0 0 0" geometry_mesh_tcp_rpy="0 0 0"
 		robot_ip="192.168.1.211" report_type="dev"
 		baud_checkset="true" default_gripper_baud="2000000"
-		model1300="false" attach_to="right_arm_mount" attach_xyz="0 0 0" attach_rpy="0 0 0"
+		model1300="false" attach_to="left_arm_mount" attach_xyz="0 0 0" attach_rpy="0 0 0"
 		robot_sn="" use_gazebo_camera="false" mesh_suffix="stl" kinematics_suffix="" />
 </robot>
