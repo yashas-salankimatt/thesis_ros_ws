@@ -3,8 +3,8 @@
 
 	<xacro:include filename="$(find dim_cpp)/urdf/include/alfred_base.urdf.xacro" />
 
-	<link name="world" />
-	<xacro:alfred_base base_frame="world" base_pos_x="0.0" base_pos_y="0.0" base_pos_z="0.0" base_roll="0.0" base_pitch="0.0" base_yaw="0.0" r="0.8" g="0.8" b="0.8" a="1.0" />
+	<link name="local_world" />
+	<xacro:alfred_base base_frame="local_world" base_pos_x="0.0" base_pos_y="0.0" base_pos_z="0.0" base_roll="0.0" base_pitch="0.0" base_yaw="0.0" r="0.8" g="0.8" b="0.8" a="1.0" />
 
 	<xacro:include filename="$(find depthai_descriptions)/urdf/include/depthai_macro.urdf.xacro" />
 
@@ -25,8 +25,8 @@
 		effort_control="false" velocity_control="false"
 		add_gripper="true" add_vacuum_gripper="false" 
 		add_bio_gripper="false" dof="6" 
-		ros2_control_plugin="uf_robot_hardware/UFRobotSystemHardware" robot_type="xarm" 
-		load_gazebo_plugin="false" ros2_control_params=""
+		ros2_control_plugin="uf_robot_hardware/UFRobotFakeSystemHardware" robot_type="xarm" 
+		load_gazebo_plugin="true" ros2_control_params=""
 		add_realsense_d435i="false" 
 		add_d435i_links="true" 
 		add_other_geometry="false" 
@@ -45,7 +45,7 @@
 		effort_control="false" velocity_control="false"
 		add_gripper="true" add_vacuum_gripper="false" 
 		add_bio_gripper="false" dof="7" 
-		ros2_control_plugin="uf_robot_hardware/UFRobotSystemHardware" robot_type="xarm" 
+		ros2_control_plugin="uf_robot_hardware/UFRobotFakeSystemHardware" robot_type="xarm" 
 		load_gazebo_plugin="false" ros2_control_params=""
 		add_realsense_d435i="false" 
 		add_d435i_links="true" 
