@@ -66,7 +66,24 @@ def generate_launch_description():
             'cam_roll': '0',
             'cam_pitch': '0',
             'cam_yaw': '-1.5707963267948966',
-            'enableRviz': 'true',
+            'enableRviz': 'false',
+        }.items(),
+    )
+
+    chest_cam_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('depthai_examples'), 'launch', 'stereo_inertial_node.launch.py'])),
+        launch_arguments={
+            'mxId': '18443010A1043B1300',
+            'tf_prefix': 'chest_cam',
+            'parent_frame': 'chest_cam_link',
+            'base_frame': 'chest_cam_frame',
+            'cam_pos_x': '0',
+            'cam_pos_y': '-0.022921',
+            'cam_pos_z': '0.004764',
+            'cam_roll': '0',
+            'cam_pitch': '0',
+            'cam_yaw': '-1.5707963267948966',
+            'enableRviz': 'false',
         }.items(),
     )
 
@@ -79,5 +96,6 @@ def generate_launch_description():
     ld.add_action(robot_state_publisher_node)
     ld.add_action(rviz_node)
     ld.add_action(head_cam_launch)
+    ld.add_action(chest_cam_launch)
 
     return ld
