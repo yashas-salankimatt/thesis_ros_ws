@@ -8,8 +8,8 @@
 
 	<xacro:include filename="$(find depthai_descriptions)/urdf/include/depthai_macro.urdf.xacro" />
 
-	<xacro:depthai_camera camera_name="head_cam" parent="head_cam_link"
-		camera_model="OAK-D-PRO" base_frame="head_cam_frame"
+	<xacro:depthai_camera camera_name="oak" parent="head_cam_link"
+		camera_model="OAK-D-PRO" base_frame="oak-d_frame"
 		cam_pos_x="0" cam_pos_y="-0.022921" cam_pos_z="0.004764"
 		cam_roll="0" cam_pitch="0" cam_yaw="-1.5707963267948966" />
 

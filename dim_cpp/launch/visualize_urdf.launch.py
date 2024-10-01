@@ -2,11 +2,13 @@ import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import Command, LaunchConfiguration
+from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import LoadComposableNodes, Node
 from launch_ros.descriptions import ComposableNode
+from launch_ros.substitutions import FindPackageShare
 
 def generate_launch_description():
     # Get the path to the xacro file
@@ -51,6 +53,23 @@ def generate_launch_description():
         arguments=['-d', os.path.join(get_package_share_directory('dim_cpp'), 'rviz', 'visualize.rviz')]
     )
 
+    head_cam_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('depthai_examples'), 'launch', 'stereo_inertial_node.launch.py'])),
+        launch_arguments={
+            # 'mxId': '1844301011A6331300',
+            'tf_prefix': 'oak',
+            'parent_frame': 'head_cam_link',
+            'base_frame': 'oak-d_frame',
+            'cam_pos_x': '0',
+            'cam_pos_y': '-0.022921',
+            'cam_pos_z': '0.004764',
+            'cam_roll': '0',
+            'cam_pitch': '0',
+            'cam_yaw': '-1.5707963267948966',
+            'enableRviz': 'true',
+        }.items(),
+    )
+
     # Create the launch description and populate
     ld = LaunchDescription()
 
@@ -59,5 +78,6 @@ def generate_launch_description():
     ld.add_action(joint_state_publisher_gui_node)
     ld.add_action(robot_state_publisher_node)
     ld.add_action(rviz_node)
+    ld.add_action(head_cam_launch)
 
     return ld
