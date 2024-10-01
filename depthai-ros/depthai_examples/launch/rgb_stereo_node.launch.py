@@ -16,7 +16,7 @@ def generate_launch_description():
     urdf_launch_dir = os.path.join(get_package_share_directory('depthai_descriptions'), 'launch')
 
     tf_prefix    = LaunchConfiguration('tf_prefix',    default = 'oak')
-    camera_model = LaunchConfiguration('camera_model', default = 'OAK-D')
+    camera_model = LaunchConfiguration('camera_model', default = 'OAK-D-SR')
     base_frame   = LaunchConfiguration('base_frame',   default = 'oak-d_frame')
     parent_frame = LaunchConfiguration('parent_frame', default = 'oak-d-base-frame')
     publish_urdf = LaunchConfiguration('publish_urdf', default = True)
@@ -29,7 +29,7 @@ def generate_launch_description():
     cam_yaw   = LaunchConfiguration('cam_yaw',         default = '0.0')
 
     lrcheck      = LaunchConfiguration('lrcheck',      default = True)
-    extended     = LaunchConfiguration('extended',     default = False)
+    extended     = LaunchConfiguration('extended',     default = True)
     subpixel     = LaunchConfiguration('subpixel',     default = True)
     confidence   = LaunchConfiguration('confidence',   default = 200)
     LRchecktresh = LaunchConfiguration('LRchecktresh', default = 5)

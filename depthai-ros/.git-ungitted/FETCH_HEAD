@@ -1,20 +1,26 @@
-cd68f4d440c4292a8b4e77231e95070da191e671		branch 'humble' of https://github.com/luxonis/depthai-ros
+e3d2f66cade8957e0166d78d3d614145aa45b353		branch 'humble' of https://github.com/luxonis/depthai-ros
 2cbe7ecc55f1cd4c5f85aec7597f1388338d2213	not-for-merge	branch 'calibration-fix' of https://github.com/luxonis/depthai-ros
 e5fdf778194094facd29689ae00cb6b300eb0c06	not-for-merge	branch 'dai_ros_py' of https://github.com/luxonis/depthai-ros
 d90fc02974ed3cb257b991bf3cbf88f2cf62e089	not-for-merge	branch 'daxoft/inertial_srv_interface' of https://github.com/luxonis/depthai-ros
 cdbca539fc622500e4cd1af05d1622f610b73567	not-for-merge	branch 'foxy' of https://github.com/luxonis/depthai-ros
 c853cdb2083ac2860623ccb1ad0c7f245280f6df	not-for-merge	branch 'galactic' of https://github.com/luxonis/depthai-ros
 579e786735018cfb746679fe0e5fa3577e926fab	not-for-merge	branch 'hand-landmark' of https://github.com/luxonis/depthai-ros
+c8f1dc66e1df87e6c4663348f7b168d89bacf54e	not-for-merge	branch 'humble_2.10.2' of https://github.com/luxonis/depthai-ros
+023ff9487e3ef9ab50cece12d2d4410c59bc3c6a	not-for-merge	branch 'humble_v3' of https://github.com/luxonis/depthai-ros
 187067fc2423b97866aa1c32b7a835703fa5bb54	not-for-merge	branch 'imu-position-fix' of https://github.com/luxonis/depthai-ros
 f6ea9c46ce204e0e5e1b14352856a2124cb9c9ca	not-for-merge	branch 'imu-test' of https://github.com/luxonis/depthai-ros
 841fc139ba700f03848ea99900ec0f94e8bf0c1c	not-for-merge	branch 'imu_sr_lr_humble' of https://github.com/luxonis/depthai-ros
-361e79e67c20d235fc66d2e976e7a47b5ade33eb	not-for-merge	branch 'iron' of https://github.com/luxonis/depthai-ros
-2e81008e08ef38ccb54140f097cc7e6e27b8e572	not-for-merge	branch 'jazzy' of https://github.com/luxonis/depthai-ros
+97d98541e2d1512d14b208e361472b2dbea572f9	not-for-merge	branch 'iron' of https://github.com/luxonis/depthai-ros
+2dfa4fcc89187a33ec1307e929b4b8a296b76845	not-for-merge	branch 'iron_2.10.2' of https://github.com/luxonis/depthai-ros
+27b1aeaf530bce0b0e56c258150c5586e5b69114	not-for-merge	branch 'iron_start_catch' of https://github.com/luxonis/depthai-ros
+f136749e130def88c6c7cd0bb31bfa36b037e0dc	not-for-merge	branch 'jazzy' of https://github.com/luxonis/depthai-ros
+576e35261197d8ab792678ba23c72bf540e0bea9	not-for-merge	branch 'jazzy_2.10.2' of https://github.com/luxonis/depthai-ros
 1ad1d7da51d03fbe9eb5a1f7a96391e8e5811521	not-for-merge	branch 'lr_sr_stls' of https://github.com/luxonis/depthai-ros
 79e2127499df8f4bdd495899c73a77027a3a9655	not-for-merge	branch 'main-old' of https://github.com/luxonis/depthai-ros
 54144f97924fd977e08caed3151d06c8c727f856	not-for-merge	branch 'multi_cam_support' of https://github.com/luxonis/depthai-ros
 e9f8a113d98e8e1272ba11e0a1af4e50afbbdd1b	not-for-merge	branch 'no_imu_fix_iron' of https://github.com/luxonis/depthai-ros
-e4e701391482f0a99d380c8553f17986549b430c	not-for-merge	branch 'noetic' of https://github.com/luxonis/depthai-ros
+10ce4377dc421a5833b14bbd497a97ce18610192	not-for-merge	branch 'noetic' of https://github.com/luxonis/depthai-ros
+f803ecd1ca19d368c02db98152089fdcba3bd65a	not-for-merge	branch 'noetic_2.10.2' of https://github.com/luxonis/depthai-ros
 ccefefd3b003df5fe89efe7bbf0c60ef55fc412b	not-for-merge	branch 'print_info_humble_i549' of https://github.com/luxonis/depthai-ros
 0692bdfd32801e89da790dba1f25834f94c7fb26	not-for-merge	branch 'python_bindings' of https://github.com/luxonis/depthai-ros
 3b2b4b1800777f358baeaf7e684ca95fa2c1f844	not-for-merge	branch 'rae_pipeline_humble' of https://github.com/luxonis/depthai-ros
@@ -23,3 +29,10 @@ ccefefd3b003df5fe89efe7bbf0c60ef55fc412b	not-for-merge	branch 'print_info_humble
 553d792e6d56cc052419ccfa16fe087663d46c46	not-for-merge	branch 'sdk_driver_humble' of https://github.com/luxonis/depthai-ros
 303716d9438fefc0da4b4cf2abe577ebd599c495	not-for-merge	branch 'static-tf' of https://github.com/luxonis/depthai-ros
 68b45537ee821ddd1f42b76f0d71f785ce56a29f	not-for-merge	branch 'test-pr' of https://github.com/luxonis/depthai-ros
+e3d2f66cade8957e0166d78d3d614145aa45b353	not-for-merge	tag 'v2.10.1-humble' of https://github.com/luxonis/depthai-ros
+97d98541e2d1512d14b208e361472b2dbea572f9	not-for-merge	tag 'v2.10.1-iron' of https://github.com/luxonis/depthai-ros
+f136749e130def88c6c7cd0bb31bfa36b037e0dc	not-for-merge	tag 'v2.10.1-jazzy' of https://github.com/luxonis/depthai-ros
+10ce4377dc421a5833b14bbd497a97ce18610192	not-for-merge	tag 'v2.10.1-noetic' of https://github.com/luxonis/depthai-ros
+4a28840a62cfe90c15b62234833a526ae0f88687	not-for-merge	tag 'v2.10.0-humble' of https://github.com/luxonis/depthai-ros
+cf5d2aaee9117298ea1632c98ffd36a5d7d535ac	not-for-merge	tag 'v2.10.0-iron' of https://github.com/luxonis/depthai-ros
+9b593079e85003892f15f8554bd2c5916be9ff36	not-for-merge	tag 'v2.10.0-jazzy' of https://github.com/luxonis/depthai-ros
