@@ -501,8 +501,8 @@ int main(int argc, char** argv) {
     if(enableRosBaseTimeUpdate) {
         rightconverter.setUpdateRosBaseTimeOnToRosMsg();
     }
-    const std::string leftPubName = rectify ? std::string("left/image_rect") : std::string("left/image_raw");
-    const std::string rightPubName = rectify ? std::string("right/image_rect") : std::string("right/image_raw");
+    const std::string leftPubName = tfPrefix + '/' + (rectify ? std::string("left/image_rect") : std::string("left/image_raw"));
+    const std::string rightPubName = tfPrefix + '/' + (rectify ? std::string("right/image_rect") : std::string("right/image_raw"));
 
     dai::rosBridge::ImuConverter imuConverter(tfPrefix + "_imu_frame", imuMode, linearAccelCovariance, angularVelCovariance);
     if(enableRosBaseTimeUpdate) {
@@ -511,11 +511,11 @@ int main(int argc, char** argv) {
     dai::rosBridge::BridgePublisher<sensor_msgs::msg::Imu, dai::IMUData> imuPublish(
         imuQueue,
         node,
-        std::string("imu"),
+        std::string(tfPrefix + "/imu"),
         std::bind(&dai::rosBridge::ImuConverter::toRosMsg, &imuConverter, std::placeholders::_1, std::placeholders::_2),
         30,
         "",
-        "imu");
+        tfPrefix + "/imu");
 
     imuPublish.addPublisherCallback();
 
@@ -537,7 +537,7 @@ int main(int argc, char** argv) {
         dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> depthPublish(
             stereoQueue,
             node,
-            std::string("stereo/depth"),
+            std::string(tfPrefix + "/stereo/depth"),
             std::bind(&dai::rosBridge::ImageConverter::toRosMsg,
                       &depthconverter,  // since the converter has the same frame name
                                         // and image type is also same we can reuse it
@@ -545,7 +545,7 @@ int main(int argc, char** argv) {
                       std::placeholders::_2),
             30,
             depthCameraInfo,
-            "stereo");
+            tfPrefix + "/stereo");
         depthPublish.addPublisherCallback();
 
         if(depth_aligned) {
@@ -554,11 +554,11 @@ int main(int argc, char** argv) {
             dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> rgbPublish(
                 imgQueue,
                 node,
-                std::string("color/image"),
+                std::string(tfPrefix + "/color/image"),
                 std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rgbConverter, std::placeholders::_1, std::placeholders::_2),
                 30,
                 rgbCameraInfo,
-                "color");
+                tfPrefix + "/color");
             rgbPublish.addPublisherCallback();
 
             if(enableSpatialDetection) {
@@ -569,18 +569,18 @@ int main(int argc, char** argv) {
                 dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> previewPublish(
                     previewQueue,
                     node,
-                    std::string("color/preview/image"),
+                    std::string(tfPrefix + "/color/preview/image"),
                     std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rgbConverter, std::placeholders::_1, std::placeholders::_2),
                     30,
                     previewCameraInfo,
-                    "color/preview");
+                    tfPrefix + "/color/preview");
                 previewPublish.addPublisherCallback();
 
                 dai::rosBridge::SpatialDetectionConverter detConverter(tfPrefix + "_rgb_camera_optical_frame", 416, 416, false);
                 dai::rosBridge::BridgePublisher<depthai_ros_msgs::msg::SpatialDetectionArray, dai::SpatialImgDetections> detectionPublish(
                     detectionQueue,
                     node,
-                    std::string("color/yolov4_Spatial_detections"),
+                    std::string(tfPrefix + "/color/yolov4_Spatial_detections"),
                     std::bind(&dai::rosBridge::SpatialDetectionConverter::toRosMsg, &detConverter, std::placeholders::_1, std::placeholders::_2),
                     30);
                 detectionPublish.addPublisherCallback();
@@ -600,7 +600,7 @@ int main(int argc, char** argv) {
                 std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &converter, std::placeholders::_1, std::placeholders::_2),
                 30,
                 leftCameraInfo,
-                "left");
+                tfPrefix + "/left");
             dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> rightPublish(
                 rightQueue,
                 node,
@@ -608,7 +608,7 @@ int main(int argc, char** argv) {
                 std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rightconverter, std::placeholders::_1, std::placeholders::_2),
                 30,
                 rightCameraInfo,
-                "right");
+                tfPrefix + "/right");
             rightPublish.addPublisherCallback();
             leftPublish.addPublisherCallback();
             rclcpp::spin(node);
@@ -624,11 +624,11 @@ int main(int argc, char** argv) {
         dai::rosBridge::BridgePublisher<stereo_msgs::msg::DisparityImage, dai::ImgFrame> dispPublish(
             stereoQueue,
             node,
-            std::string("stereo/disparity"),
+            std::string(tfPrefix + "/stereo/disparity"),
             std::bind(&dai::rosBridge::DisparityConverter::toRosMsg, &dispConverter, std::placeholders::_1, std::placeholders::_2),
             30,
             disparityCameraInfo,
-            "stereo");
+            tfPrefix + "/stereo");
         dispPublish.addPublisherCallback();
 
         if(depth_aligned) {
@@ -638,11 +638,11 @@ int main(int argc, char** argv) {
             dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> rgbPublish(
                 imgQueue,
                 node,
-                std::string("color/image"),
+                std::string(tfPrefix + "/color/image"),
                 std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rgbConverter, std::placeholders::_1, std::placeholders::_2),
                 30,
                 rgbCameraInfo,
-                "color");
+                tfPrefix + "/color");
             rgbPublish.addPublisherCallback();
             if(enableSpatialDetection) {
                 auto previewQueue = device->getOutputQueue("preview", 30, false);
@@ -652,18 +652,18 @@ int main(int argc, char** argv) {
                 dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> previewPublish(
                     previewQueue,
                     node,
-                    std::string("color/preview/image"),
+                    std::string(tfPrefix + "/color/preview/image"),
                     std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rgbConverter, std::placeholders::_1, std::placeholders::_2),
                     30,
                     previewCameraInfo,
-                    "color/preview");
+                    tfPrefix + "/color/preview");
                 previewPublish.addPublisherCallback();
 
                 dai::rosBridge::SpatialDetectionConverter detConverter(tfPrefix + "_rgb_camera_optical_frame", 416, 416, false);
                 dai::rosBridge::BridgePublisher<depthai_ros_msgs::msg::SpatialDetectionArray, dai::SpatialImgDetections> detectionPublish(
                     detectionQueue,
                     node,
-                    std::string("color/yolov4_Spatial_detections"),
+                    std::string(tfPrefix + "/color/yolov4_Spatial_detections"),
                     std::bind(&dai::rosBridge::SpatialDetectionConverter::toRosMsg, &detConverter, std::placeholders::_1, std::placeholders::_2),
                     30);
                 detectionPublish.addPublisherCallback();
@@ -683,7 +683,7 @@ int main(int argc, char** argv) {
                 std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &converter, std::placeholders::_1, std::placeholders::_2),
                 30,
                 leftCameraInfo,
-                "left");
+                tfPrefix + "/left");
             dai::rosBridge::BridgePublisher<sensor_msgs::msg::Image, dai::ImgFrame> rightPublish(
                 rightQueue,
                 node,
@@ -691,7 +691,7 @@ int main(int argc, char** argv) {
                 std::bind(&dai::rosBridge::ImageConverter::toRosMsg, &rightconverter, std::placeholders::_1, std::placeholders::_2),
                 30,
                 rightCameraInfo,
-                "right");
+                tfPrefix + "/right");
             rightPublish.addPublisherCallback();
             leftPublish.addPublisherCallback();
             rclcpp::spin(node);

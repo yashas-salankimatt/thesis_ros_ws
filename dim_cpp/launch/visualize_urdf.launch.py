@@ -56,10 +56,10 @@ def generate_launch_description():
     head_cam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([FindPackageShare('depthai_examples'), 'launch', 'stereo_inertial_node.launch.py'])),
         launch_arguments={
-            # 'mxId': '1844301011A6331300',
-            'tf_prefix': 'oak',
+            'mxId': '1844301011A6331300',
+            'tf_prefix': 'head_cam',
             'parent_frame': 'head_cam_link',
-            'base_frame': 'oak-d_frame',
+            'base_frame': 'head_cam_frame',
             'cam_pos_x': '0',
             'cam_pos_y': '-0.022921',
             'cam_pos_z': '0.004764',
