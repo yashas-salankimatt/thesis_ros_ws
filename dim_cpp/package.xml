@@ -22,6 +22,8 @@
   <depend>moveit_ros_move_group</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
+  <depend>xacro</depend>
+  <depend>robot_state_publisher</depend>
 
   <depend>xarm_msgs</depend>
   <depend>xarm_planner</depend>
