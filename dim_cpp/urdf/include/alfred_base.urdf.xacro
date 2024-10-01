@@ -244,7 +244,7 @@
         <joint name="right_arm_mount_joint" type="fixed">
             <parent link="pillar_platform" />
             <child link="right_arm_mount" />
-            <origin xyz=".32675 -.319646 1.4125" rpy="-1.57079633 0 1.57079633" />
+            <origin xyz=".32675 -.319646 1.4125" rpy="1.57079633 3.14159265 1.57079633" />
         </joint>
     </xacro:macro>
 
