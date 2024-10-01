@@ -119,8 +119,8 @@ Visualization Manager:
       Position Transformer: XYZ
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.009999999776482582
-      Style: Flat Squares
+      Size (m): 0.005
+      Style: Spheres
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -143,7 +143,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /oak/stereo/image_raw
+        Value: /oak/right/image_raw
       Value: true
   Enabled: true
   Global Options:

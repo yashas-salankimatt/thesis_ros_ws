@@ -10,7 +10,7 @@
   <xacro:arg name="add_bio_gripper" default="false"/>
   <xacro:arg name="model1300" default="false"/>
   
-  <xacro:arg name="dof" default="7"/>
+  <xacro:arg name="dof" default="6"/>
   <xacro:arg name="robot_ip" default=""/>
   <xacro:arg name="robot_type" default="xarm"/>
   <xacro:arg name="robot_sn" default=""/>
@@ -67,24 +67,5 @@
     baud_checkset="$(arg baud_checkset)" default_gripper_baud="$(arg default_gripper_baud)"
     model1300="$(arg model1300)" attach_to="$(arg attach_to)" attach_xyz="$(arg attach_xyz)" attach_rpy="$(arg attach_rpy)"
     robot_sn="$(arg robot_sn)" use_gazebo_camera="$(arg use_gazebo_camera)" mesh_suffix="$(arg mesh_suffix)" kinematics_suffix="$(arg kinematics_suffix)" />
-
-	<xacro:arg name="camera_name" default="oak" />
-	<xacro:arg name="camera_model" default="OAK-D-PRO" />
-	<xacro:arg name="base_frame" default="oak-d_frame" />
-	<xacro:arg name="parent_frame" default="link6" />
-	<xacro:arg name="cam_pos_x" default="0.0875" />
-	<xacro:arg name="cam_pos_y" default="0.0" />
-	<xacro:arg name="cam_pos_z" default="0.02792" />
-	<xacro:arg name="cam_roll" default="3.141592653589793" />
-	<xacro:arg name="cam_pitch" default="-1.5707963267948966" />
-	<xacro:arg name="cam_yaw" default="0.0" />
-	<xacro:arg name="rs_compat" default="false" />
-
-	<xacro:include filename="$(find depthai_descriptions)/urdf/include/depthai_macro.urdf.xacro" />
-
-	<xacro:depthai_camera camera_name="$(arg camera_name)" parent="$(arg parent_frame)"
-		camera_model="$(arg camera_model)" base_frame="$(arg base_frame)"
-		cam_pos_x="$(arg cam_pos_x)" cam_pos_y="$(arg cam_pos_y)" cam_pos_z="$(arg cam_pos_z)"
-		cam_roll="$(arg cam_roll)" cam_pitch="$(arg cam_pitch)" cam_yaw="$(arg cam_yaw)" />
 
 </robot>

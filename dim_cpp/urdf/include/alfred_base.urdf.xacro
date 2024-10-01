@@ -215,6 +215,37 @@
             <limit lower="-1.57" upper="1.57" effort="100" velocity="0.1"/>
         </joint>
 
+        <link name="head_cam_link" />
+
+        <joint name="head_cam_joint" type="fixed">
+            <parent link="camera_holder" />
+            <child link="head_cam_link" />
+            <origin xyz="0 -0.0025 0.057" rpy="0 0 0" />
+        </joint>
+    
+        <link name="chest_cam_link" />
+
+        <joint name="chest_cam_joint" type="fixed">
+            <parent link="alfred_base_link" />
+            <child link="chest_cam_link" />
+            <origin xyz=".225 -.455681 1.441731" rpy="0.78539816 0 0" />
+        </joint>
+
+        <link name="left_arm_mount" />
+
+        <joint name="left_arm_mount_joint" type="fixed">
+            <parent link="pillar_platform" />
+            <child link="left_arm_mount" />
+            <origin xyz=".12325 -.319646 1.4125" rpy="1.57079633 0 -1.57079633" />
+        </joint>
+
+        <link name="right_arm_mount" />
+
+        <joint name="right_arm_mount_joint" type="fixed">
+            <parent link="pillar_platform" />
+            <child link="right_arm_mount" />
+            <origin xyz=".32675 -.319646 1.4125" rpy="-1.57079633 0 1.57079633" />
+        </joint>
     </xacro:macro>
 
     <!-- <xacro:alfred_base base_frame="world" base_pos_x="0.0" base_pos_y="0.0" base_pos_z="0.0" base_roll="0.0" base_pitch="0.0" base_yaw="0.0" r="0.8" g="0.8" b="0.8" a="1.0" /> -->
