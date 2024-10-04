@@ -1,0 +1,15 @@
+# pack-refs with: peeled fully-peeled sorted 
+5b25b56775efdad3cd9bcf131547f00258dd04e1 refs/remotes/origin/eloquent
+1d015f3a4881aa50661e2ec60eadddc032a1cd5e refs/remotes/origin/master
+bc764841722769babe5cccd082d3f08c8b0ab825 refs/tags/crystal
+c41f65baa5ea5273de0c6d7633f9bf6d335bf8bb refs/tags/crystal-0.1
+852ac517b594a0187447b586fd3e6ffed2d2ebea refs/tags/eloquent-v3.5
+058c708e1869983c0e9dfc984287a6e159d9dfba refs/tags/foxy-humble-v3.8
+7d393c30cdcc794de43dac624548d787b9b045cd refs/tags/foxy-humble-v3.8.2
+6e5865a4c8adce96882871b357bddd85cb2700f3 refs/tags/foxy-humble-v4.0.5
+b512dce6ad4565f4770273995b147122e735ca0f refs/tags/foxy-v3.5
+de1dfc4cde9ada3173074a05e14631d4d56e442c refs/tags/foxy-v3.5.1
+7cbd090186a838a93b0077fc861b887ba55aefc3 refs/tags/foxy-v3.6
+55a4302c6365ab2742e61f4cbfbd34960d3955b2 refs/tags/foxy-v3.7
+77a043a6d7fb5802ac49562e61efc1a4d6b5fc3f refs/tags/humble-v4.0.8
+da7f6ac549ba212339670cff1b9ef442380b5615 refs/tags/humble-v4.1.4

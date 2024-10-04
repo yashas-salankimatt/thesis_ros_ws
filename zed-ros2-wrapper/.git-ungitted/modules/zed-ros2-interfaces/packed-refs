@@ -1,0 +1,10 @@
+# pack-refs with: peeled fully-peeled sorted 
+07dadd6983872b86824206e5b9be9aaeb3da8e97 refs/remotes/origin/fix_foxy
+14bb6b9e6b2396e8562c45f9c58ab9d9e9fa516f refs/remotes/origin/main
+e565d6cb6a259b2de678f552a6b12e0dbf65064c refs/tags/foxy-humble-v3.8
+10f1e2bfeb232fee38893c25ed9c45c966074657 refs/tags/foxy-humble-v3.8.2
+6dfb08531c324481418342e789adb2c3d836c917 refs/tags/foxy-humble-v4.0.5
+340f0038678b5bfd7e6c96d96f5a13074b61adec refs/tags/foxy-v3.6.x
+326fbe9e8e8ee558b94f7b17acb026b468113884 refs/tags/foxy-v3.7.x
+9d150f6df8299c089ea4665bd0346006c43b88e2 refs/tags/humble-v4.0.8
+14bb6b9e6b2396e8562c45f9c58ab9d9e9fa516f refs/tags/humble-v4.1.4
