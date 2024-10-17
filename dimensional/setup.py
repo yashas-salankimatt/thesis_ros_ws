@@ -32,6 +32,7 @@ setup(
             'object_processor = dimensional.object_processor:main',
             'pose_pub_test = dimensional.pose_pub_test:main',
             'gripper_action_client = dimensional.gripper_action_client:main',
+            'tokenizer = dimensional.tokenizer:main',
         ],
     },
 )

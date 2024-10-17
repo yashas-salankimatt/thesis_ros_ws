@@ -29,9 +29,9 @@ public:
         : Node("data_recorder_node"), is_recording_(false)
     {
         // Parameters for the topics
-        this->declare_parameter("image_topic_1", "/color/image");
-        this->declare_parameter("image_topic_2", "/stereo/depth");
-        this->declare_parameter("pointcloud_topic", "/stereo/points");
+        this->declare_parameter("image_topic_1", "/oak/color/image");
+        this->declare_parameter("image_topic_2", "/oak/stereo/depth");
+        this->declare_parameter("pointcloud_topic", "/oak/stereo/points");
         this->declare_parameter("transform_topic", "/real_arm_tf");
         this->declare_parameter("float_topic", "/gripper_position");
         this->declare_parameter("bool_topic", "/is_recording");
