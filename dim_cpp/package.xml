@@ -32,11 +32,11 @@
 
   <depend>sensor_msgs</depend>
   <depend>cv_bridge</depend>
-  <depend>OpenCV</depend>
-  <depend>PCL</depend>
+  <!-- <depend>OpenCV</depend> -->
+  <!-- <depend>PCL</depend> -->
   <depend>pcl_conversions</depend>
   <depend>pcl_ros</depend>
-  <depend>libpcap-dev</depend>
+  <!-- <depend>libpcap-dev</depend> -->
 
   <exec_depend>launch</exec_depend>
   <exec_depend>launch_ros</exec_depend>
