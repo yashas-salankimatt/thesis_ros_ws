@@ -1,22 +1,23 @@
 {
-    "python.analysis.extraPaths": [
-        "/opt/ros/humble/install",
-        "/opt/ros/humble/lib/python3.10/site-packages",
-        "/opt/ros/humble/local/lib/python3.10/dist-packages",
-        "/home/ros/ws_moveit2/install",
-        "./install/uf_ros_lib/lib/python3.10/site-packages"
-    ],
-    "python.autoComplete.extraPaths": [
-        "/home/yashas/dev_ws/install/xarm_msgs/local/lib/python3.10/dist-packages",
-        "/home/yashas/dev_ws/install/uf_ros_lib/lib/python3.10/site-packages",
-        "/home/yashas/dev_ws/install/ros_tcp_endpoint/lib/python3.10/site-packages",
-        "/home/yashas/dev_ws/install/depthai_ros_driver/local/lib/python3.10/dist-packages",
-        "/home/yashas/dev_ws/install/ffmpeg_image_transport_msgs/local/lib/python3.10/dist-packages",
-        "/home/yashas/dev_ws/install/dimensional/lib/python3.10/site-packages",
-        "/home/yashas/dev_ws/install/depthai_ros_msgs/local/lib/python3.10/dist-packages",
-        "/opt/ros/humble/lib/python3.10/site-packages",
-        "/opt/ros/humble/local/lib/python3.10/dist-packages",
-        "",
-        "/home/yashas/Documents/thesis/video_prediction"
-    ]
+	"python.analysis.extraPaths": [
+		"/opt/ros/humble/install",
+		"/opt/ros/humble/lib/python3.10/site-packages",
+		"/opt/ros/humble/local/lib/python3.10/dist-packages",
+		"/home/ros/ws_moveit2/install",
+		"./install/uf_ros_lib/lib/python3.10/site-packages"
+	],
+	"python.autoComplete.extraPaths": [
+		"/home/yashas/dev_ws/install/xarm_msgs/local/lib/python3.10/dist-packages",
+		"/home/yashas/dev_ws/install/uf_ros_lib/lib/python3.10/site-packages",
+		"/home/yashas/dev_ws/install/ros_tcp_endpoint/lib/python3.10/site-packages",
+		"/home/yashas/dev_ws/install/depthai_ros_driver/local/lib/python3.10/dist-packages",
+		"/home/yashas/dev_ws/install/ffmpeg_image_transport_msgs/local/lib/python3.10/dist-packages",
+		"/home/yashas/dev_ws/install/dimensional/lib/python3.10/site-packages",
+		"/home/yashas/dev_ws/install/depthai_ros_msgs/local/lib/python3.10/dist-packages",
+		"/opt/ros/humble/lib/python3.10/site-packages",
+		"/opt/ros/humble/local/lib/python3.10/dist-packages",
+		"",
+		"/home/yashas/Documents/thesis/video_prediction"
+	],
+	"ros.distro": "humble"
 }
