@@ -140,6 +140,10 @@ install(DIRECTORY urdf
   DESTINATION share/${PROJECT_NAME}/
 )
 
+install(DIRECTORY srdf
+  DESTINATION share/${PROJECT_NAME}/
+)
+
 install(DIRECTORY rviz
   DESTINATION share/${PROJECT_NAME}/
 )

@@ -1036,7 +1036,7 @@ class DualMoveItConfigsBuilder(ParameterBuilder):
         # self.__urdf_package = Path(get_package_share_directory('xarm_description'))
         self.__urdf_package = Path(get_package_share_directory('dim_cpp'))
         self.__urdf_file_path = Path('urdf/alfred_base_descr.urdf.xacro')
-        self.__srdf_file_path = Path('srdf/dual_xarm.srdf.xacro')
+        self.__srdf_file_path = Path('srdf/alfred_base_descr.srdf.xacro')
 
         self.__robot_description = 'robot_description'
 
