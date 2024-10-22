@@ -4,7 +4,8 @@
 		"/opt/ros/humble/lib/python3.10/site-packages",
 		"/opt/ros/humble/local/lib/python3.10/dist-packages",
 		"/home/ros/ws_moveit2/install",
-		"./install/uf_ros_lib/lib/python3.10/site-packages"
+		"./install/uf_ros_lib/lib/python3.10/site-packages",
+		"./xarm_ros2/uf_ros_lib"
 	],
 	"python.autoComplete.extraPaths": [
 		"/home/yashas/dev_ws/install/xarm_msgs/local/lib/python3.10/dist-packages",
