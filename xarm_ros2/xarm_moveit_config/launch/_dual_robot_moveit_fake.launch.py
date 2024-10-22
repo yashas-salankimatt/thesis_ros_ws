@@ -224,6 +224,16 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
 
+    joint_state_publisher_node = Node(
+        package='dimensional',
+        executable='fake_joint_state_pub',
+        name='joint_state_publisher',
+        output='screen',
+        parameters=[{
+            'launch_gui': False,
+        }],
+    )
+
     joint_state_broadcaster = Node(
         package='controller_manager',
         executable='spawner',
@@ -249,6 +259,7 @@ def launch_setup(context, *args, **kwargs):
 
 
     return [
+        joint_state_publisher_node,
         robot_state_publisher_node,
         robot_moveit_common_launch,
         joint_state_broadcaster,
