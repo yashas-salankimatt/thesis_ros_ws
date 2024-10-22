@@ -30,6 +30,7 @@ class JointStatePublisher(Node):
                 self.make_joint_callback(i), 
                 10
             )
+            # self.get_logger().info(f'')
             self.subscribers.append(subscriber)
 
     def make_joint_callback(self, index):
@@ -39,7 +40,7 @@ class JointStatePublisher(Node):
             if self.joint_names[index] in msg.name:
                 joint_index = msg.name.index(self.joint_names[index])
                 self.positions[index] = msg.position[joint_index]
-                self.get_logger().info(f'Received {self.joint_names[index]} state: {msg.position[joint_index]}')
+                # self.get_logger().info(f'Received {self.joint_names[index]} state: {msg.position[joint_index]}')
         return joint_callback
 
     def set_joint_position(self, index, value):
@@ -55,7 +56,7 @@ class JointStatePublisher(Node):
         joint_state.effort = [0.0] * len(self.joint_names)
 
         self.publisher_.publish(joint_state)
-        self.get_logger().info(f'Publishing joint states: {self.positions}')
+        # self.get_logger().info(f'Publishing joint states: {self.positions}')
 
 class JointControlGUI(QWidget):
     def __init__(self, joint_publisher, default_positions):
