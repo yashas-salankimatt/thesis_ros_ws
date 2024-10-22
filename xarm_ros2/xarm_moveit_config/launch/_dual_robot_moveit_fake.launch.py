@@ -224,6 +224,13 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
 
+    static_joint_states = {
+            'pan_joint': 0.0,
+            'tilt_joint': 0.0,
+            'right_wheel_joint': 0.0,
+            'left_wheel_joint': 0.0,
+        }
+
     joint_state_broadcaster = Node(
         package='controller_manager',
         executable='spawner',
@@ -232,6 +239,14 @@ def launch_setup(context, *args, **kwargs):
             'joint_state_broadcaster',
             '--controller-manager', '{}/controller_manager'.format(ros_namespace)
         ],
+    )
+
+    # joint state publisher node
+    joint_state_publisher_node = Node(
+        package='dimensional',
+        executable='fake_joint_state_pub',
+        name='joint_state_publisher',
+        output='screen',
     )
 
     # Load controllers
@@ -252,6 +267,7 @@ def launch_setup(context, *args, **kwargs):
         robot_state_publisher_node,
         robot_moveit_common_launch,
         joint_state_broadcaster,
+        # joint_state_publisher_node,
         ros2_control_launch,
     ] + controller_nodes
 

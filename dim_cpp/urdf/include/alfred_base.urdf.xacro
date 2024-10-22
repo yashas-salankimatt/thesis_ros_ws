@@ -4,7 +4,7 @@
     xmlns:xacro="http://ros.org/wiki/xacro">
 
     <xacro:macro name="alfred_base"
-        params="base_frame  base_pos_x base_pos_y base_pos_z  base_roll base_pitch base_yaw prefix:='' r:=0.8 g:=0.8 b:=0.8 a:=1.0 fixed:=true">
+        params="base_frame  base_pos_x base_pos_y base_pos_z  base_roll base_pitch base_yaw prefix:='' r:=0.8 g:=0.8 b:=0.8 a:=1.0 fixed:=false">
 
         <xacro:property
             name="file_prefix"

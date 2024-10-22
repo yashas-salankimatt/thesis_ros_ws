@@ -33,6 +33,7 @@ setup(
             'pose_pub_test = dimensional.pose_pub_test:main',
             'gripper_action_client = dimensional.gripper_action_client:main',
             'tokenizer = dimensional.tokenizer:main',
+            'fake_joint_state_pub = dimensional.fake_joint_state_pub:main',
         ],
     },
 )
