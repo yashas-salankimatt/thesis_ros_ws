@@ -21,8 +21,8 @@ from uf_ros_lib.uf_robot_utils import generate_dual_ros2_control_params_temp_fil
 
 def launch_setup(context, *args, **kwargs):
     dof = LaunchConfiguration('dof', default=7)
-    dof_1 = LaunchConfiguration('dof_1', default=dof)
-    dof_2 = LaunchConfiguration('dof_2', default=dof)
+    dof_1 = LaunchConfiguration('dof_1', default=6)
+    dof_2 = LaunchConfiguration('dof_2', default=7)
     robot_type = LaunchConfiguration('robot_type', default='xarm')
     robot_type_1 = LaunchConfiguration('robot_type_1', default=robot_type)
     robot_type_2 = LaunchConfiguration('robot_type_2', default=robot_type)

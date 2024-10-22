@@ -32,8 +32,8 @@ def launch_setup(context, *args, **kwargs):
     default_gripper_baud_1 = LaunchConfiguration('default_gripper_baud', default=default_gripper_baud)
     default_gripper_baud_2 = LaunchConfiguration('default_gripper_baud', default=default_gripper_baud)
     dof = LaunchConfiguration('dof', default=7)
-    dof_1 = LaunchConfiguration('dof_1', default=dof)
-    dof_2 = LaunchConfiguration('dof_2', default=dof)
+    dof_1 = LaunchConfiguration('dof_1', default=6)
+    dof_2 = LaunchConfiguration('dof_2', default=7)
     robot_type = LaunchConfiguration('robot_type', default='xarm')
     robot_type_1 = LaunchConfiguration('robot_type_1', default=robot_type)
     robot_type_2 = LaunchConfiguration('robot_type_2', default=robot_type)
@@ -238,6 +238,16 @@ def launch_setup(context, *args, **kwargs):
         ],
     )
 
+    base_joint_state_publisher_node = Node(
+        package='dimensional',
+        executable='fake_joint_state_pub',
+        name='joint_state_publisher',
+        output='screen',
+        parameters=[{
+            'launch_gui': False,
+        }],
+    )
+
     # ros2 control launch
     # xarm_controller/launch/_dual_ros2_control.launch.py
     ros2_control_launch = IncludeLaunchDescription(
@@ -268,6 +278,7 @@ def launch_setup(context, *args, **kwargs):
         robot_state_publisher_node,
         robot_moveit_common_launch,
         joint_state_publisher_node,
+        base_joint_state_publisher_node,
         ros2_control_launch,
     ] + controller_nodes
 

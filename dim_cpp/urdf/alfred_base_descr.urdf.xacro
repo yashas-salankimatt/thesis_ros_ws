@@ -17,7 +17,7 @@
 	<xacro:arg name="model1300_1" default="false"/>
 	<xacro:arg name="model1300_2" default="false"/>
 
-	<xacro:arg name="dof_1" default="7"/>
+	<xacro:arg name="dof_1" default="6"/>
 	<xacro:arg name="dof_2" default="7"/>
 	<xacro:arg name="robot_ip_1" default=""/>
 	<xacro:arg name="robot_ip_2" default=""/>
