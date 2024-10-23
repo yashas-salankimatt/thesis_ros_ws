@@ -131,4 +131,7 @@
 		baud_checkset="$(arg baud_checkset_2)" default_gripper_baud="$(arg default_gripper_baud_2)"
 		model1300="$(arg model1300_2)" robot_sn="$(arg robot_sn_2)" mesh_suffix="$(arg mesh_suffix)" kinematics_suffix="$(arg kinematics_suffix_2)" />
 
+	<xacro:include filename="$(find dim_cpp)/urdf/alfred_wheels_ros2_control.xacro" />
+	<xacro:alfred_wheels_ros2_control />
+
 </robot>
