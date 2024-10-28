@@ -204,6 +204,7 @@ def launch_setup(context, *args, **kwargs):
     controllers = [
         '{}{}_traj_controller'.format(prefix_1.perform(context), xarm_type_1),
         '{}{}_traj_controller'.format(prefix_2.perform(context), xarm_type_2),
+        'R_alfred_diff_cont',
     ]
     if add_gripper_1.perform(context) in ('True', 'true') and robot_type_1.perform(context) != 'lite':
         controllers.append('{}{}_gripper_traj_controller'.format(prefix_1.perform(context), robot_type_1.perform(context)))

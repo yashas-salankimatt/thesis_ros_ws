@@ -12,7 +12,7 @@ class JointStatePublisher(Node):
         self.joint_names = [
             'pan_joint', 'tilt_joint', 
             'pillar_platform_joint', 
-            'right_wheel_joint', 'left_wheel_joint'
+            # 'right_wheel_joint', 'left_wheel_joint'
         ]
         self.positions = default_positions
         self.subscribers = []
@@ -66,8 +66,8 @@ class JointControlGUI(QWidget):
             'pan_joint': (-1.57, 1.57),
             'tilt_joint': (-1.57, 1.57),
             'pillar_platform_joint': (-0.85, 0.0),
-            'right_wheel_joint': (-1.0, 1.0),
-            'left_wheel_joint': (-1.0, 1.0)
+            # 'right_wheel_joint': (-1.0, 1.0),
+            # 'left_wheel_joint': (-1.0, 1.0)
         }
         self.default_positions = default_positions
         self.init_ui()
@@ -116,7 +116,8 @@ def main(args=None):
     node.destroy_node()
 
     # Set default positions for each joint
-    default_positions = [0.0, 0.0, 0.0, 0.0, 0.0]  # Modify this array to set different default values
+    # default_positions = [0.0, 0.0, 0.0, 0.0, 0.0]  # Modify this array to set different default values
+    default_positions = [0.0, 0.0, 0.0]  # Modify this array to set different default values
 
     joint_state_publisher = JointStatePublisher(default_positions)
 

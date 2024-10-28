@@ -51,8 +51,8 @@ alfred_diff_cont:
     base_frame_id: base_center
     left_wheel_names: ["left_wheel_joint"]
     right_wheel_names: ["right_wheel_joint"]
-    wheel_separation: 0.3 # need to be tuned
-    wheel_radius: 0.05 # need to be tuned
+    wheel_separation: 0.5176 # need to be tuned
+    wheel_radius: 0.0855 # need to be tuned
 
     wheel_separation_multiplier: 1.0
     left_wheel_radius_multiplier: 1.0
@@ -60,7 +60,7 @@ alfred_diff_cont:
 
     odom_frame_id: odom
 
-    open_loop: true
+    # open_loop: true
     enable_odom_tf: true
 
     # cmd_vel_timeout: 0.5

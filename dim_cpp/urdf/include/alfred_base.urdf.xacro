@@ -47,7 +47,7 @@
         <joint name="base_center_joint" type="fixed">
             <parent link="base_center" />
             <child link="alfred_base_link" />
-            <origin xyz="-.225 .2125 .1232" rpy="0 0 0" />
+            <origin xyz="-0.395 -.2125 .1232" rpy="0 0 1.5707" />
         </joint>
 
         <link name="botwheel_right">
@@ -121,7 +121,7 @@
                 <parent link="alfred_base_link" />
                 <child link="botwheel_left" />
                 <origin xyz="0.5061 -0.395 -0.0375" rpy="0 0 1.5707" />
-                <axis xyz="0 1 0" />
+                <axis xyz="0 -1 0" />
             </joint>
         </xacro:unless>
         <xacro:if value="${fixed}">
