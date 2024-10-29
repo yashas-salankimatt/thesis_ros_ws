@@ -134,4 +134,7 @@
 	<xacro:include filename="$(find dim_cpp)/urdf/alfred_wheels_ros2_control.xacro" />
 	<xacro:alfred_wheels_ros2_control />
 
+	<xacro:include filename="$(find dim_cpp)/urdf/alfred_pan_tilt_ros2_control.xacro" />
+	<xacro:alfred_pan_tilt_ros2_control />
+
 </robot>

@@ -1,0 +1,48 @@
+controller_manager:
+  ros__parameters:
+    update_rate: 150 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    alfred_diff_cont:
+      type: diff_drive_controller/DiffDriveController
+
+    pan_tilt_traj_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+alfred_diff_cont:
+  ros__parameters:
+    publish_rate: 50.0
+
+    base_frame_id: base_center
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+    wheel_separation: 0.5176 # need to be tuned
+    wheel_radius: 0.0855 # need to be tuned
+
+    wheel_separation_multiplier: 1.0
+    left_wheel_radius_multiplier: 1.0
+    right_wheel_radius_multiplier: 1.0
+
+    odom_frame_id: odom
+
+    # open_loop: true
+    enable_odom_tf: true
+
+    # cmd_vel_timeout: 0.5
+    # use_sim_time: true
+
+    use_stamped_vel: false
+
+pan_tilt_traj_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+    joints:
+      - pan_joint
+      - tilt_joint
+    state_publish_rate: 25.0
+    action_monitor_rate: 10.0

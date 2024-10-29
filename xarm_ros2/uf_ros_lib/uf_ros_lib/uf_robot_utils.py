@@ -109,7 +109,7 @@ def generate_ros2_control_params_temp_file(ros2_control_params_path, prefix='', 
 
 
 def generate_dual_ros2_control_params_temp_file(
-    ros2_control_params_path_1, ros2_control_params_path_2, 
+    ros2_control_params_path_1, ros2_control_params_path_2,
     prefix_1='L_', prefix_2='R_', 
     add_gripper_1=False, add_gripper_2=False, 
     add_bio_gripper_1=False, add_bio_gripper_2=False, 
@@ -119,9 +119,13 @@ def generate_dual_ros2_control_params_temp_file(
         ros2_control_params_yaml_1 = yaml.safe_load(f)
     with open(ros2_control_params_path_2, 'r') as f:
         ros2_control_params_yaml_2 = yaml.safe_load(f)
+    alfred_ros2_control_params_path = os.path.join(get_package_share_directory('xarm_controller'), 'config', 'alfred_controllers.yaml')
+    with open(alfred_ros2_control_params_path, 'r') as f:
+        alfred_ros2_control_params_yaml = yaml.safe_load(f)
     if update_rate is not None:
         ros2_control_params_yaml_1['controller_manager']['ros__parameters']['update_rate'] = update_rate
         ros2_control_params_yaml_2['controller_manager']['ros__parameters']['update_rate'] = update_rate
+        alfred_ros2_control_params_yaml['controller_manager']['ros__parameters']['update_rate'] = update_rate
 
     if add_gripper_1:
         gripper_control_params_path = os.path.join(get_package_share_directory('xarm_controller'), 'config', '{}_gripper_controllers.yaml'.format(robot_type_1))
@@ -170,12 +174,15 @@ def generate_dual_ros2_control_params_temp_file(
     ros2_control_params_yaml = {}
     ros2_control_params_yaml.update(ros2_control_params_yaml_1)
     ros2_control_params_yaml.update(ros2_control_params_yaml_2)
+    ros2_control_params_yaml.update(alfred_ros2_control_params_yaml)
     ros2_control_params_yaml['controller_manager']['ros__parameters'].update(ros2_control_params_yaml_1['controller_manager']['ros__parameters'])
     ros2_control_params_yaml['controller_manager']['ros__parameters'].update(ros2_control_params_yaml_2['controller_manager']['ros__parameters'])
+    ros2_control_params_yaml['controller_manager']['ros__parameters'].update(alfred_ros2_control_params_yaml['controller_manager']['ros__parameters'])
     if ros_namespace:
         ros2_control_params_yaml = {
             ros_namespace: ros2_control_params_yaml
         }
+    print(ros2_control_params_yaml)
     with NamedTemporaryFile(mode='w', prefix='launch_params_', delete=False) as h:
         yaml.dump(ros2_control_params_yaml, h, default_flow_style=False)
         return h.name
