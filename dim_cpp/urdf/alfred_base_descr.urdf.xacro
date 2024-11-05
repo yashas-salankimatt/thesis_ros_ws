@@ -137,4 +137,7 @@
 	<xacro:include filename="$(find dim_cpp)/urdf/alfred_pan_tilt_ros2_control.xacro" />
 	<xacro:alfred_pan_tilt_ros2_control />
 
+	<xacro:include filename="$(find dim_cpp)/urdf/alfred_pillar_platform_ros2_control.xacro" />
+	<xacro:alfred_pillar_platform_ros2_control />
+
 </robot>

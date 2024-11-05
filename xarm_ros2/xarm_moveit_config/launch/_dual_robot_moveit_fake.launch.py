@@ -206,6 +206,7 @@ def launch_setup(context, *args, **kwargs):
         '{}{}_traj_controller'.format(prefix_2.perform(context), xarm_type_2),
         'alfred_diff_cont',
         'pan_tilt_traj_controller',
+        'alfred_pillar_platform_traj_controller',
     ]
     if add_gripper_1.perform(context) in ('True', 'true') and robot_type_1.perform(context) != 'lite':
         controllers.append('{}{}_gripper_traj_controller'.format(prefix_1.perform(context), robot_type_1.perform(context)))
@@ -261,7 +262,7 @@ def launch_setup(context, *args, **kwargs):
 
 
     return [
-        joint_state_publisher_node,
+        # joint_state_publisher_node,
         robot_state_publisher_node,
         robot_moveit_common_launch,
         joint_state_broadcaster,

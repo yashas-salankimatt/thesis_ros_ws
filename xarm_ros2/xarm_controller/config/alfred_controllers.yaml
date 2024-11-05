@@ -11,6 +11,9 @@ controller_manager:
     pan_tilt_traj_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+    alfred_pillar_platform_traj_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
 alfred_diff_cont:
   ros__parameters:
     publish_rate: 50.0
@@ -46,3 +49,12 @@ pan_tilt_traj_controller:
       - tilt_joint
     state_publish_rate: 25.0
     action_monitor_rate: 10.0
+
+alfred_pillar_platform_traj_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+    joints:
+      - pillar_platform_joint
