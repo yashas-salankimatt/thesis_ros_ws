@@ -11,7 +11,7 @@
             <joint name="pillar_platform_joint">
                 <command_interface name="position"/>
                 <state_interface name="position">
-                    <param name="initial_value">0.0</param>
+                    <param name="initial_value">-0.3</param>
                 </state_interface>
             </joint>
         </ros2_control>
