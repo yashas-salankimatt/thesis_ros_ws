@@ -132,7 +132,7 @@
 		model1300="$(arg model1300_2)" robot_sn="$(arg robot_sn_2)" mesh_suffix="$(arg mesh_suffix)" kinematics_suffix="$(arg kinematics_suffix_2)" />
 
 	<xacro:include filename="$(find dim_cpp)/urdf/alfred_wheels_ros2_control.xacro" />
-	<xacro:alfred_wheels_ros2_control />
+	<xacro:alfred_wheels_ros2_control mock_hardware="true"/>
 
 	<xacro:include filename="$(find dim_cpp)/urdf/alfred_pan_tilt_ros2_control.xacro" />
 	<xacro:alfred_pan_tilt_ros2_control />
