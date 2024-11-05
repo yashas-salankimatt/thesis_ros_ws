@@ -8,8 +8,8 @@
 	<xacro:arg name="limited" default="false"/>
 	<xacro:arg name="effort_control" default="false"/>
 	<xacro:arg name="velocity_control" default="false"/>
-	<xacro:arg name="add_gripper_1" default="true"/>
-	<xacro:arg name="add_gripper_2" default="true"/>
+	<xacro:arg name="add_gripper_1" default="false"/>
+	<xacro:arg name="add_gripper_2" default="false"/>
 	<xacro:arg name="add_vacuum_gripper_1" default="false"/>
 	<xacro:arg name="add_vacuum_gripper_2" default="false"/>
 	<xacro:arg name="add_bio_gripper_1" default="false"/>
@@ -73,6 +73,7 @@
 	<xacro:arg name="kinematics_suffix_2" default=""/>
 
 	<xacro:include filename="$(find dim_cpp)/urdf/include/alfred_base.urdf.xacro" />
+	<xacro:include filename="$(find dim_cpp)/urdf/include/alfred_gripper.urdf.xacro" />
 
 	<link name="$(arg base_frame)" />
 	<xacro:alfred_base base_frame="$(arg base_frame)" base_pos_x="0.0" base_pos_y="0.0" base_pos_z="0.0" base_roll="0.0" base_pitch="0.0" base_yaw="0.0" r="0.8" g="0.8" b="0.8" a="1.0" />
@@ -130,6 +131,9 @@
 		robot_ip="$(arg robot_ip_2)" report_type="$(arg report_type_2)"
 		baud_checkset="$(arg baud_checkset_2)" default_gripper_baud="$(arg default_gripper_baud_2)"
 		model1300="$(arg model1300_2)" robot_sn="$(arg robot_sn_2)" mesh_suffix="$(arg mesh_suffix)" kinematics_suffix="$(arg kinematics_suffix_2)" />
+	
+	<xacro:alfred_gripper prefix="$(arg prefix_1)" attach_to="L_link_eef" />
+	<xacro:alfred_gripper prefix="$(arg prefix_2)" attach_to="R_link_eef" />
 
 	<xacro:include filename="$(find dim_cpp)/urdf/alfred_wheels_ros2_control.xacro" />
 	<xacro:alfred_wheels_ros2_control mock_hardware="true"/>
@@ -139,5 +143,9 @@
 
 	<xacro:include filename="$(find dim_cpp)/urdf/alfred_pillar_platform_ros2_control.xacro" />
 	<xacro:alfred_pillar_platform_ros2_control />
+
+	<xacro:include filename="$(find dim_cpp)/urdf/alfred_gripper_ros2_control.xacro" />
+	<xacro:alfred_gripper_ros2_control prefix="$(arg prefix_1)" />
+	<xacro:alfred_gripper_ros2_control prefix="$(arg prefix_2)" />
 
 </robot>

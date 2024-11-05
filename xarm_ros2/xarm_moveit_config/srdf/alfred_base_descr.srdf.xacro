@@ -28,4 +28,13 @@
     <xacro:include filename="$(find dim_cpp)/srdf/alfred_base.srdf.xacro" />
     <xacro:alfred_base_macro_srdf />
 
+    <disable_collisions link1="$(arg prefix_1)gripper_base" link2="$(arg prefix_1)link$(arg dof_1)" reason="Never" />
+    <disable_collisions link1="$(arg prefix_2)gripper_base" link2="$(arg prefix_2)link$(arg dof_2)" reason="Never" />
+    <disable_collisions link1="$(arg prefix_1)gripper_base" link2="$(arg prefix_1)link_eef" reason="Adjacent" />
+    <disable_collisions link1="$(arg prefix_2)gripper_base" link2="$(arg prefix_2)link_eef" reason="Adjacent" />
+
+    <xacro:include filename="$(find dim_cpp)/srdf/alfred_gripper.srdf.xacro" />
+    <xacro:alfred_gripper_macro_srdf prefix="$(arg prefix_1)" />
+    <xacro:alfred_gripper_macro_srdf prefix="$(arg prefix_2)" />
+
 </robot>

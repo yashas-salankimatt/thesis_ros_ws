@@ -14,6 +14,12 @@ controller_manager:
     alfred_pillar_platform_traj_controller:
       type: joint_trajectory_controller/JointTrajectoryController
 
+    alfred_gripper_1_traj_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    alfred_gripper_2_traj_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
 alfred_diff_cont:
   ros__parameters:
     publish_rate: 50.0
@@ -58,3 +64,21 @@ alfred_pillar_platform_traj_controller:
       - position
     joints:
       - pillar_platform_joint
+
+alfred_gripper_1_traj_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+    joints:
+      - L_jaw_1_joint
+
+alfred_gripper_2_traj_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+    joints:
+      - R_jaw_1_joint
