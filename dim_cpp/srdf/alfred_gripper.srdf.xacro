@@ -19,11 +19,12 @@
             <joint name="${prefix}jaw_1_joint" value="0.0" />
         </group_state>
         <group_state name="${prefix}gripper_close" group="${prefix}alfred_gripper">
-            <joint name="${prefix}jaw_1_joint" value="0.05" />
+            <joint name="${prefix}jaw_1_joint" value="0.04" />
         </group_state>
 
         <disable_collisions link1="${prefix}gripper_jaw_1" link2="${prefix}gripper_base" reason="Adjacent" />
         <disable_collisions link1="${prefix}gripper_jaw_2" link2="${prefix}gripper_base" reason="Adjacent" />
+        <disable_collisions link1="${prefix}gripper_jaw_1" link2="${prefix}gripper_jaw_2" reason="Adjacent" />
 
     </xacro:macro>
 </robot>
