@@ -27,16 +27,17 @@ public:
 
         RCLCPP_INFO(node_->get_logger(), "namespace: %s, group_name: %s", node_->get_namespace(), group_name.c_str());
 
+        group_name = "R_xarm7";
         planner_ = std::make_shared<xarm_planner::XArmPlanner>(node_, group_name);
-        planner_gripper_ = std::make_shared<xarm_planner::XArmPlanner>(node_, robot_type + "_gripper");
+        // planner_gripper_ = std::make_shared<xarm_planner::XArmPlanner>(node_, robot_type + "_gripper");
 
         // Subscriber for the target pose
         target_pose_sub_ = this->create_subscription<geometry_msgs::msg::Pose>(
             "/curr_target_pose", 10, std::bind(&XArmControllerNode::poseCallback, this, std::placeholders::_1));
 
         // Subscriber for the gripper position
-        gripper_sub_ = this->create_subscription<std_msgs::msg::Float32>(
-            "/gripper_position", 10, std::bind(&XArmControllerNode::gripperCallback, this, std::placeholders::_1));
+        // gripper_sub_ = this->create_subscription<std_msgs::msg::Float32>(
+        //     "/gripper_position", 10, std::bind(&XArmControllerNode::gripperCallback, this, std::placeholders::_1));
 
         // Publisher for the robot status
         status_pub_ = this->create_publisher<std_msgs::msg::Int8>("/robot_status", 10);

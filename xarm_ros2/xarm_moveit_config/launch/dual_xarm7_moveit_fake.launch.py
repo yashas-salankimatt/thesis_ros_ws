@@ -11,7 +11,7 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-
+from launch_ros.actions import Node
 
 def generate_launch_description():
     hw_ns = LaunchConfiguration('hw_ns', default='xarm')
@@ -27,7 +27,16 @@ def generate_launch_description():
             'no_gui_ctrl': 'false',
         }.items(),
     )
+
+    # start the twist publisher node from the dimensional package
+    twist_publisher_launch = Node(
+        package='dimensional',
+        executable='tf_to_twist_publisher',
+        name='tf_to_twist_publisher',
+        output='screen',
+    )
     
     return LaunchDescription([
-        robot_moveit_fake_launch
+        robot_moveit_fake_launch,
+        twist_publisher_launch
     ])
