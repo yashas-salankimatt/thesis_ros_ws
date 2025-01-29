@@ -35,8 +35,30 @@ def generate_launch_description():
         name='tf_to_twist_publisher',
         output='screen',
     )
+
+    # tf_to_twist_publisher with parent frame 'odom' and child frame 'xarm_link_7'
+    alfred_base_center_twist_publisher_launch = Node(
+        package='dimensional',
+        executable='tf_to_twist_publisher',
+        name='tf_to_twist_publisher',
+        output='screen',
+        parameters=[
+            {'parent_frame': 'odom'},
+            {'child_frame': 'base_center'},
+            {'twist_topic': '/alfred_base_center_tf_twist'},
+        ]
+    )
+
+    alfred_controller_launch = Node(
+        package='dimensional',
+        executable='alfred_controller',
+        name='alfred_controller',
+        output='screen',
+    )
     
     return LaunchDescription([
         robot_moveit_fake_launch,
-        twist_publisher_launch
+        twist_publisher_launch,
+        alfred_base_center_twist_publisher_launch,
+        alfred_controller_launch
     ])

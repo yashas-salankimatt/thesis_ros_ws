@@ -262,6 +262,14 @@ def launch_setup(context, *args, **kwargs):
             ],
         ))
 
+    # static transform publisher
+    static_transform_publisher_node = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        output='screen',
+        arguments=['0', '0', '0', '0', '0', '0', 'world', 'odom'],
+    )
+
 
     return [
         # joint_state_publisher_node,
@@ -269,6 +277,7 @@ def launch_setup(context, *args, **kwargs):
         robot_moveit_common_launch,
         joint_state_broadcaster,
         ros2_control_launch,
+        static_transform_publisher_node,
     ] + controller_nodes
 
 

@@ -36,6 +36,7 @@ setup(
             'fake_joint_state_pub = dimensional.fake_joint_state_pub:main',
             'fake_joint_state_pub_tester = dimensional.fake_joint_state_pub_tester:main',
             'tf_to_twist_publisher = dimensional.tf_to_twist_publisher:main',
+            'alfred_controller = dimensional.alfred_controller:main',
         ],
     },
 )
