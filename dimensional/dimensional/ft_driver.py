@@ -6,6 +6,7 @@ from dash import dcc, html
 import plotly.graph_objs as go
 import threading
 from tabulate import tabulate
+import math
 
 # show the dash app
 show_dash = True
@@ -17,13 +18,19 @@ class SensorData:
         self.calibration_data = []
         self.sensor_calibrated_averages = []
         self.cluster_displacements = {"Middle": [], "Top": [], "Bottom Right": [], "Bottom Left": []}
+        self.cluster_angles = [0, 0, 240, 120]
+        self.magnet_dist = .025
+        self.cluster_distances = [0, self.magnet_dist, self.magnet_dist, self.magnet_dist]
+        self.cluster_torques = {"Middle": [], "Top": [], "Bottom Right": [], "Bottom Left": []}
+        self.forces = []
+        self.torques = []
         self.moving_average_window = moving_average_window
         self.calibration_window = calibration_window
         self.calibrated = False
     
     def process_data(self, values):
         if any(x < 9000 or x > 21000 for x in values) or len(values) != 16:
-            print("Invalid values:", values)
+            # print("Invalid values:", values)
             return
         self.sensor_data_window.append(values)
         if len(self.sensor_data_window) > self.calibration_window:
@@ -48,13 +55,45 @@ class SensorData:
             "Bottom Right": self.sensor_moving_averages[8:12],
             "Bottom Left": self.sensor_moving_averages[12:]
         }
-        for name, cluster in clusters.items():
-            x_displacement = cluster[1] - cluster[3]
-            y_displacement = cluster[0] - cluster[2]
-            z_displacement = sum(cluster) / len(cluster)
-            self.cluster_displacements[name].append([x_displacement, y_displacement, z_displacement])
+        force_x = 0
+        force_y = 0
+        force_z = 0
+        torque_x = 0
+        torque_y = 0
+        torque_z = 0
+        for i, (name, cluster) in enumerate(clusters.items()):
+            local_x_displacement = cluster[1] - cluster[3]
+            local_y_displacement = cluster[0] - cluster[2]
+            local_z_displacement = sum(cluster) / len(cluster)
+            x_displacement = local_x_displacement * math.cos(math.radians(self.cluster_angles[i])) - local_y_displacement * math.sin(math.radians(self.cluster_angles[i]))
+            y_displacement = local_x_displacement * math.sin(math.radians(self.cluster_angles[i])) + local_y_displacement * math.cos(math.radians(self.cluster_angles[i]))
+            force_x += x_displacement
+            force_y += y_displacement
+            force_z += local_z_displacement
+            position_vector = []
+            position_vector.append(self.cluster_distances[i] * -math.sin(math.radians(self.cluster_angles[i])))
+            position_vector.append(self.cluster_distances[i] * math.cos(math.radians(self.cluster_angles[i])))
+            position_vector.append(0)
+            # print(name, position_vector)
+            local_torque_x = position_vector[1] * force_z - position_vector[2] * force_y
+            local_torque_y = position_vector[2] * force_x - position_vector[0] * force_z
+            local_torque_z = position_vector[0] * force_y - position_vector[1] * force_x
+            torque_x += local_torque_x
+            torque_y += local_torque_y
+            torque_z += local_torque_z
+            self.cluster_displacements[name].append([x_displacement, y_displacement, local_z_displacement])
             if len(self.cluster_displacements[name]) > 100:
                 self.cluster_displacements[name].pop(0)
+            self.cluster_torques[name].append([torque_x, torque_y, torque_z])
+            if len(self.cluster_torques[name]) > 100:
+                self.cluster_torques[name].pop(0)
+        self.forces.append([force_x, force_y, force_z])
+        if len(self.forces) > 100:
+            self.forces.pop(0)
+        self.torques.append([torque_x, torque_y, torque_z])
+        if len(self.torques) > 100:
+            self.torques.pop(0)
+        # print(tabulate([[torque_x, torque_y, torque_z]], headers=["Torque X", "Torque Y", "Torque Z"]))
 
 class SerialReader:
     def __init__(self, sensor_data, port="/dev/ttyUSB0", baudrate=115200, timeout=1):
@@ -108,7 +147,16 @@ if show_dash:
     app.layout = html.Div([
         html.H1("Real-time Sensor Data & Cluster Displacements"),
         dcc.Graph(id="raw-sensor-graph"),
-        *[dcc.Graph(id=f"{name}-graph") for name in cluster_names],
+        html.Div([
+            html.Div([dcc.Graph(id=f"{name}-graph")], style={'width': '48%', 'display': 'inline-block'}) for name in cluster_names
+        ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
+        html.Div([
+            html.Div([dcc.Graph(id=f"{name}-torque-graph")], style={'width': '48%', 'display': 'inline-block'}) for name in cluster_names
+        ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
+        html.Div([
+            html.Div([dcc.Graph(id=f"force-graph")], style={'width': '48%', 'display': 'inline-block'}),
+            html.Div([dcc.Graph(id=f"torque-graph")], style={'width': '48%', 'display': 'inline-block'}),
+        ], style={'display': 'flex', 'flex-wrap': 'wrap'}),
         dcc.Interval(id="interval-component", interval=100, n_intervals=0)
     ])
     
@@ -142,5 +190,51 @@ if show_dash:
                 fig.add_trace(go.Scatter(x=x_vals, y=displacements[dim], mode="lines", name=f"{axis} Displacement"))
             fig.update_layout(title=f"{cluster} Cluster Displacements", xaxis_title="Time", yaxis_title="Displacement")
             return fig
+    
+    for name in cluster_names:
+        @app.callback(
+            dash.dependencies.Output(f"{name}-torque-graph", "figure"),
+            [dash.dependencies.Input("interval-component", "n_intervals")]
+        )
+        def update_torque_graph(n, cluster=name):
+            if not sensor_data.cluster_torques[cluster]:
+                return go.Figure()
+            x_vals = list(range(len(sensor_data.cluster_torques[cluster])))
+            fig = go.Figure()
+            torques = list(zip(*sensor_data.cluster_torques[cluster]))
+            for dim, axis in enumerate(["X", "Y", "Z"]):
+                fig.add_trace(go.Scatter(x=x_vals, y=torques[dim], mode="lines", name=f"{axis} Torque"))
+            fig.update_layout(title=f"{cluster} Cluster Torques", xaxis_title="Time", yaxis_title="Torque")
+            return fig
+    
+    @app.callback(
+        dash.dependencies.Output("force-graph", "figure"),
+        [dash.dependencies.Input("interval-component", "n_intervals")]
+    )
+    def update_force_graph(n):
+        if not sensor_data.forces:
+            return go.Figure()
+        x_vals = list(range(len(sensor_data.forces)))
+        fig = go.Figure()
+        forces = list(zip(*sensor_data.forces))
+        for dim, axis in enumerate(["X", "Y", "Z"]):
+            fig.add_trace(go.Scatter(x=x_vals, y=forces[dim], mode="lines", name=f"{axis} Force"))
+        fig.update_layout(title="Force", xaxis_title="Time", yaxis_title="Force")
+        return fig
+    
+    @app.callback(
+        dash.dependencies.Output("torque-graph", "figure"),
+        [dash.dependencies.Input("interval-component", "n_intervals")]
+    )
+    def update_torque_graph(n):
+        if not sensor_data.torques:
+            return go.Figure()
+        x_vals = list(range(len(sensor_data.torques)))
+        fig = go.Figure()
+        torques = list(zip(*sensor_data.torques))
+        for dim, axis in enumerate(["X", "Y", "Z"]):
+            fig.add_trace(go.Scatter(x=x_vals, y=torques[dim], mode="lines", name=f"{axis} Torque"))
+        fig.update_layout(title="Torque", xaxis_title="Time", yaxis_title="Torque")
+        return fig
     
     app.run_server(debug=True)
