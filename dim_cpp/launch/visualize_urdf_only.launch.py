@@ -15,7 +15,7 @@ def generate_launch_description():
     xacro_file = os.path.join(
         get_package_share_directory('dim_cpp'),
         'urdf',
-        'devkit_base_descr.urdf.xacro'
+        'xarm_devkit_base_descr.urdf.xacro'
     )
 
     # Process the xacro file to generate the robot description

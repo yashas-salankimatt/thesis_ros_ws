@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<robot name="devkit_base_descr" 
+	xmlns:xacro="http://ros.org/wiki/xacro"
+	xmlns:drake="http://drake.mit.edu">
+	
+	<xacro:arg name="prefix_1" default=""/>
+	<xacro:arg name="hw_ns" default="xarm"/>
+	<xacro:arg name="limited" default="false"/>
+	<xacro:arg name="effort_control" default="false"/>
+	<xacro:arg name="velocity_control" default="false"/>
+	<xacro:arg name="add_gripper_1" default="true"/>
+	<xacro:arg name="add_vacuum_gripper_1" default="false"/>
+	<xacro:arg name="add_bio_gripper_1" default="false"/>
+	<xacro:arg name="model1300_1" default="false"/>
+
+	<xacro:arg name="dof_1" default="7"/>
+	<xacro:arg name="robot_ip_1" default=""/>
+	<xacro:arg name="robot_type_1" default="xarm"/>
+	<xacro:arg name="robot_sn_1" default=""/>
+	<xacro:arg name="report_type_1" default="normal"/>
+
+	<xacro:arg name="ros2_control_plugin" default="uf_robot_hardware/UFFakeRobotSystemHardware"/>
+	<xacro:arg name="ros2_control_params" default=""/>
+
+	<xacro:arg name="add_realsense_d435i_1" default="false"/>
+	<xacro:arg name="add_d435i_links_1" default="true"/>
+
+	<xacro:arg name="add_other_geometry_1" default="false"/>
+	<xacro:arg name="geometry_type_1" default="box"/>
+	<xacro:arg name="geometry_mass_1" default="0.1"/>
+	<xacro:arg name="geometry_height_1" default="0.1"/>
+	<xacro:arg name="geometry_radius_1" default="0.1"/>
+	<xacro:arg name="geometry_length_1" default="0.1"/>
+	<xacro:arg name="geometry_width_1" default="0.1"/>
+	<xacro:arg name="geometry_mesh_filename_1" default=""/>
+	<xacro:arg name="geometry_mesh_origin_xyz_1" default="0 0 0"/>
+	<xacro:arg name="geometry_mesh_origin_rpy_1" default="0 0 0"/>
+	<xacro:arg name="geometry_mesh_tcp_xyz_1" default="0 0 0"/>
+	<xacro:arg name="geometry_mesh_tcp_rpy_1" default="0 0 0"/>
+
+	<xacro:arg name="baud_checkset_1" default="true"/>
+	<xacro:arg name="default_gripper_baud_1" default="2000000"/>
+
+	<xacro:arg name="mesh_suffix" default="stl"/>
+
+	<xacro:arg name="kinematics_suffix_1" default=""/>
+
+	<xacro:arg name="base_frame" default="world"/>
+
+	<xacro:arg name="camera_name"   default="zed" />
+	<xacro:arg name="camera_model"  default="zedm" />
+	<xacro:arg name="custom_baseline"  default="0.0" />
+	<xacro:arg name="enable_gnss"   default="false" />
+	<xacro:arg name="gnss_x" default="0.0" />
+	<xacro:arg name="gnss_y" default="0.0" />
+	<xacro:arg name="gnss_z" default="0.0" />
+	
+	<xacro:include filename="$(find dim_cpp)/urdf/include/devkit_base.urdf.xacro" />
+	<xacro:include filename="$(find dim_cpp)/urdf/include/piper_angled_base.urdf.xacro" />
+	<xacro:include filename="$(find dim_cpp)/piper_description/urdf/piper_description_macro.xacro" />
+
+	<link name="$(arg base_frame)" />
+	<xacro:devkit_base base_frame="$(arg base_frame)" base_pos_x="0.0" base_pos_y="0.0" base_pos_z="0.23625" base_roll="0.0" base_pitch="0.0" base_yaw="0.0" r="0.8" g="0.8" b="0.8" a="1.0" />
+	<xacro:piper_angled_base base_frame="pillar_platform" base_pos_x="0.0" base_pos_y="0.0" base_pos_z="0.0" base_roll="0.0" base_pitch="0.0" base_yaw="0.0" r="0.8" g="0.8" b="0.8" a="1.0" />
+
+	<xacro:include filename="$(find dim_cpp)/urdf/xarm_device_macro.xacro" />
+
+	<xacro:xarm_device prefix="$(arg prefix_1)" hw_ns="$(arg hw_ns)" limited="$(arg limited)" 
+		effort_control="$(arg effort_control)" velocity_control="$(arg velocity_control)"
+		add_gripper="$(arg add_gripper_1)" add_vacuum_gripper="$(arg add_vacuum_gripper_1)" 
+		add_bio_gripper="$(arg add_bio_gripper_1)" dof="$(arg dof_1)"
+		ros2_control_plugin="$(arg ros2_control_plugin)" robot_type="$(arg robot_type_1)"
+		load_gazebo_plugin="false" ros2_control_params="$(arg ros2_control_params)"
+		attach_to="piper_angled_mount" attach_xyz="0 0.292645 1.42886" attach_rpy="0 0.7854 1.5707"
+		add_realsense_d435i="$(arg add_realsense_d435i_1)" 
+		add_d435i_links="$(arg add_d435i_links_1)" 
+		add_other_geometry="$(arg add_other_geometry_1)" 
+		geometry_type="$(arg geometry_type_1)" geometry_mass="$(arg geometry_mass_1)"
+		geometry_height="$(arg geometry_height_1)" geometry_radius="$(arg geometry_radius_1)"
+		geometry_length="$(arg geometry_length_1)" geometry_width="$(arg geometry_width_1)"
+		geometry_mesh_filename="$(arg geometry_mesh_filename_1)"
+		geometry_mesh_origin_xyz="$(arg geometry_mesh_origin_xyz_1)" geometry_mesh_origin_rpy="$(arg geometry_mesh_origin_rpy_1)"
+		geometry_mesh_tcp_xyz="$(arg geometry_mesh_tcp_xyz_1)" geometry_mesh_tcp_rpy="$(arg geometry_mesh_tcp_rpy_1)"
+		robot_ip="$(arg robot_ip_1)" report_type="$(arg report_type_1)"
+		baud_checkset="$(arg baud_checkset_1)" default_gripper_baud="$(arg default_gripper_baud_1)"
+		model1300="$(arg model1300_1)" robot_sn="$(arg robot_sn_1)" mesh_suffix="$(arg mesh_suffix)" kinematics_suffix="$(arg kinematics_suffix_1)" />
+
+	<xacro:include filename="$(find dim_cpp)/urdf/zed_macro.urdf.xacro" />
+    <joint name="zed_fixed_joint" type="fixed">
+		<parent link="camera_center_link"/>
+		<child link="zed_camera_link"/>
+		<origin xyz="0 -.015 -.01325" rpy="0 0 1.5707" />
+    </joint>
+	<xacro:zed_camera name="$(arg camera_name)" model="$(arg camera_model)" custom_baseline="$(arg custom_baseline)" enable_gnss="$(arg enable_gnss)">
+		<origin xyz="$(arg gnss_x) $(arg gnss_y) $(arg gnss_z)" rpy="0 0 0"/>
+	</xacro:zed_camera>
+
+
+	<drake:collision_filter_group name="no_collide">
+		<drake:member link="base_center"/>
+		<drake:member link="devkit_base_link"/>
+		<drake:member link="pillar_platform"/>
+		<drake:member link="piper_angled_mount"/>
+		<drake:member link="zed_camera_link"/>
+		<drake:member link="zed_camera_center"/>
+		<drake:member link="zed_left_camera_frame"/>
+		<drake:member link="zed_left_camera_optical_frame"/>
+		<drake:member link="zed_right_camera_frame"/>
+		<drake:member link="zed_right_camera_optical_frame"/>
+		<drake:member link="pan_tilt_pan"/>
+		<drake:member link="pan_tilt_head"/>
+		<drake:member link="pan_tilt_base"/>
+		<drake:ignored_collision_filter_group name="no_collide"/>
+  </drake:collision_filter_group>
+</robot>
