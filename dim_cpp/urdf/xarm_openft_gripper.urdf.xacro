@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="devkit_base_descr" 
+<robot name="xarm_openft_gripper" 
 	xmlns:xacro="http://ros.org/wiki/xacro"
 	xmlns:drake="http://drake.mit.edu">
 	
@@ -108,4 +108,9 @@
 		<origin rpy="0 0 1.570796" xyz="0 0 0.06"/>
 	</joint>
 	
+	<drake:collision_filter_group name="no_collide">
+		<drake:member link="link_openft"/>
+		<drake:member link="xarm_gripper_base_link"/>
+		<drake:ignored_collision_filter_group name="no_collide"/>
+  </drake:collision_filter_group>
 </robot>
