@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<robot name="devkit_base_descr" 
+	xmlns:xacro="http://ros.org/wiki/xacro"
+	xmlns:drake="http://drake.mit.edu">
+	
+	<xacro:arg name="prefix" default=""/>
+	<xacro:arg name="hw_ns" default="xarm"/>
+	<xacro:arg name="limited" default="false"/>
+	<xacro:arg name="effort_control" default="false"/>
+	<xacro:arg name="velocity_control" default="false"/>
+	<xacro:arg name="add_gripper" default="false"/>
+	<xacro:arg name="add_vacuum_gripper" default="false"/>
+	<xacro:arg name="add_bio_gripper" default="false"/>
+	<xacro:arg name="model1300" default="false"/>
+
+	<xacro:arg name="dof" default="6"/>
+	<xacro:arg name="robot_ip" default=""/>
+	<xacro:arg name="robot_type" default="xarm"/>
+	<xacro:arg name="robot_sn" default=""/>
+	<xacro:arg name="report_type" default="normal"/>
+
+	<xacro:arg name="ros2_control_plugin" default="uf_robot_hardware/UFFakeRobotSystemHardware"/>
+	<xacro:arg name="ros2_control_params" default=""/>
+
+	<xacro:arg name="add_realsense_d435i" default="false"/>
+	<xacro:arg name="add_d435i_links" default="true"/>
+
+	<xacro:arg name="add_other_geometry" default="false"/>
+	<xacro:arg name="geometry_type" default="box"/>
+	<xacro:arg name="geometry_mass" default="0.1"/>
+	<xacro:arg name="geometry_height" default="0.1"/>
+	<xacro:arg name="geometry_radius" default="0.1"/>
+	<xacro:arg name="geometry_length" default="0.1"/>
+	<xacro:arg name="geometry_width" default="0.1"/>
+	<xacro:arg name="geometry_mesh_filename" default=""/>
+	<xacro:arg name="geometry_mesh_origin_xyz" default="0 0 0"/>
+	<xacro:arg name="geometry_mesh_origin_rpy" default="0 0 0"/>
+	<xacro:arg name="geometry_mesh_tcp_xyz" default="0 0 0"/>
+	<xacro:arg name="geometry_mesh_tcp_rpy" default="0 0 0"/>
+
+	<xacro:arg name="baud_checkset" default="true"/>
+	<xacro:arg name="default_gripper_baud" default="2000000"/>
+
+	<xacro:arg name="mesh_suffix" default="stl"/>
+
+	<xacro:arg name="kinematics_suffix" default=""/>
+
+	<xacro:arg name="base_frame" default="world"/>
+
+    <!-- include common.link.xacro -->
+    <xacro:include filename="$(find dim_cpp)/urdf/common/common.link.xacro" />
+
+	<xacro:include filename="$(find dim_cpp)/urdf/xarm_device_macro.xacro" />
+
+	<xacro:xarm_device prefix="$(arg prefix)" hw_ns="$(arg hw_ns)" limited="$(arg limited)" 
+		effort_control="$(arg effort_control)" velocity_control="$(arg velocity_control)"
+		add_gripper="$(arg add_gripper)" add_vacuum_gripper="$(arg add_vacuum_gripper)" 
+		add_bio_gripper="$(arg add_bio_gripper)" dof="$(arg dof)"
+		ros2_control_plugin="$(arg ros2_control_plugin)" robot_type="$(arg robot_type)"
+		load_gazebo_plugin="false" ros2_control_params="$(arg ros2_control_params)"
+		attach_to="world" attach_xyz="0 0 0" attach_rpy="0 0 0"
+		add_realsense_d435i="$(arg add_realsense_d435i)" 
+		add_d435i_links="$(arg add_d435i_links)" 
+		add_other_geometry="$(arg add_other_geometry)" 
+		geometry_type="$(arg geometry_type)" geometry_mass="$(arg geometry_mass)"
+		geometry_height="$(arg geometry_height)" geometry_radius="$(arg geometry_radius)"
+		geometry_length="$(arg geometry_length)" geometry_width="$(arg geometry_width)"
+		geometry_mesh_filename="$(arg geometry_mesh_filename)"
+		geometry_mesh_origin_xyz="$(arg geometry_mesh_origin_xyz)" geometry_mesh_origin_rpy="$(arg geometry_mesh_origin_rpy)"
+		geometry_mesh_tcp_xyz="$(arg geometry_mesh_tcp_xyz)" geometry_mesh_tcp_rpy="$(arg geometry_mesh_tcp_rpy)"
+		robot_ip="$(arg robot_ip)" report_type="$(arg report_type)"
+		baud_checkset="$(arg baud_checkset)" default_gripper_baud="$(arg default_gripper_baud)"
+		model1300="$(arg model1300)" robot_sn="$(arg robot_sn)" mesh_suffix="$(arg mesh_suffix)" kinematics_suffix="$(arg kinematics_suffix)" />
+
+	<link name="link_openft">
+		<inertial>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<mass value="0.014"/>
+			<inertia ixx="0.0058562" ixy="-1.79e-05" ixz="3.55e-06" iyy="0.0050316" iyz="-0.000888336" izz="0.003536652"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<mesh filename="package://dim_cpp/meshes/openft/openft-xarm-collision.stl" scale="0.001 0.001 0.001"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="White"/>
+		</visual>
+		<collision>
+			<geometry>
+				<mesh filename="package://dim_cpp/meshes/openft/openft-xarm-collision.stl" scale="0.001 0.001 0.001"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+		</collision>
+	</link>
+	<joint name="openft_joint" type="fixed">
+		<parent link="link6"/>
+		<child link="link_openft"/>
+		<origin rpy="0 0 1.570796" xyz="0 0 0.02035"/>
+	</joint>
+
+	<xacro:include filename="$(find dim_cpp)/urdf/gripper/xarm_gripper.urdf.xacro" />
+	<xacro:xarm_gripper_urdf attach_to="link_openft" attach_xyz="0 0 0.015" attach_rpy="0 0 -1.570796" />
+
+	<link name="xarm_gripper_com" />
+	<joint name="xarm_com_joint" type="fixed">
+		<parent link="xarm_gripper_base_link"/>
+		<child link="xarm_gripper_com"/>
+		<origin rpy="0 0 1.570796" xyz="0 0 0.06"/>
+	</joint>
+	
+</robot>
